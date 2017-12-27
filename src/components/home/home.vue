@@ -7,7 +7,7 @@
           <ul class="count">
             <li>
               当前区块高度
-              <span>{{10}}</span>
+              <span>{{number}}</span>
             </li>
             <li>
               记帐节点数
@@ -84,18 +84,24 @@
 <script type="text/ecmascript-6">
 import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
+// axios.interceptors.request.use(config => {
+//   config.headers = {
+//     "content-type": "application/json"
+//   };
+// });
 const ERR_OK = 0;
 export default {
   name: "home",
 
   data() {
     return {
+      number: "",
       apidata: {},
       getNewBlock: [],
       cardList: []
     };
   },
-  created() {
+  mounted() {
     axios
       .get("/api")
       .then(response => {
@@ -122,7 +128,17 @@ export default {
       .catch(function(error) {
         console.log(error);
       });
-    axios.post("http://192.168.100.2:8545");
+    axios
+      .post("http://192.168.100.2:8545", {
+        jsonrpc: "2.0",
+        method: "eth_blockNumber",
+        params: [],
+        id: 83
+      })
+      .then(res => {
+        this.number = res.data.result;
+        console.log(res);
+      });
   },
   methods: {}
 };
