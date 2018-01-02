@@ -84,6 +84,7 @@
 <script type="text/ecmascript-6">
 import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
+import _ from "lodash";
 // axios.interceptors.request.use(config => {
 //   config.headers = {
 //     "content-type": "application/json"
@@ -133,12 +134,42 @@ export default {
         jsonrpc: "2.0",
         method: "eth_blockNumber",
         params: [],
-        id: 83
+        id: 1
       })
       .then(res => {
-        this.number = res.data.result;
-        console.log(res);
+        this.number = parseInt(res.data.result, 16);
       });
+    var that = this;
+    // _.debounce(
+    //   function() {
+    //     axios
+    //       .post("http://192.168.100.2:8545", {
+    //         jsonrpc: "2.0",
+    //         method: "eth_blockNumber",
+    //         params: [],
+    //         id: 1
+    //       })
+    //       .then(res => {
+    //         that.number = parseInt(res.data.result, 16);
+    //         console.log(that);
+    //       });
+    //   },
+    //   1000,
+    //   { maxWait: 1000 }
+    // );
+    setInterval(function() {
+      axios
+        .post("http://192.168.100.2:8545", {
+          jsonrpc: "2.0",
+          method: "eth_blockNumber",
+          params: [],
+          id: 1
+        })
+        .then(res => {
+          that.number = parseInt(res.data.result, 16);
+          console.log(res);
+        });
+    }, 15000);
   },
   methods: {}
 };
