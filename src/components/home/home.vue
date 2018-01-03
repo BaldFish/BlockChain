@@ -11,7 +11,7 @@
             </li>
             <li>
               记帐节点数
-              <span>{{5}}</span>
+              <span>{{peerCount}}</span>
             </li>
             <li>
               存证TX条目数量
@@ -30,17 +30,17 @@
               <thead>
                 <tr>
                   <th>区块高度</th>
-                  <th>出块时间</th>
                   <th>出块节点名称</th>
-                  <th>存证TX条目数量</th>
+                  <th>交易笔数</th>
+                  <th>出块时间</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in apidata.getNewBlock">
-                  <td>{{item.number}}</td>
-                  <td>{{item.timestamp}}</td>
-                  <td>{{item.miner}}</td>
-                  <td>{{item.transactions.length}}</td>
+                <tr v-for="item in blocks">
+                  <td>{{item.result.number}}</td>
+                  <td>{{item.result.miner}}</td>
+                  <td>{{item.result.transactions.length}}</td>
+                  <td>{{item.result.timestamp}}</td>
                 </tr>
               </tbody>
             </table>
@@ -49,24 +49,24 @@
 
         <div class="block_box">
           <div class="clearfix block">
-            <h2 class="fl">最新存证</h2>
+            <h2 class="fl">最新交易</h2>
             <span class="fr">查看全部</span>
           </div>
           <div class="con_tb">
             <table class='tb' width='100%'>
               <thead>
                 <tr>
-                  <th>存证TX哈希</th>
+                  <th>所属应用</th>
+                  <th>交易哈希</th>
                   <th>存证信息</th>
-                  <th>所属合作方名称</th>
                   <th>上链时间</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="item in apidata.cardList">
+                  <td>{{item.partner}}</td>
                   <td>{{item.hash}}</td>
                   <td>{{item.transactionIndex}}</td>
-                  <td>{{item.partner}}</td>
                   <td>{{item.timestamp}}</td>
                 </tr>
               </tbody>
@@ -85,11 +85,7 @@
 import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
 import _ from "lodash";
-// axios.interceptors.request.use(config => {
-//   config.headers = {
-//     "content-type": "application/json"
-//   };
-// });
+
 const ERR_OK = 0;
 export default {
   name: "home",
@@ -97,6 +93,9 @@ export default {
   data() {
     return {
       number: "",
+      peerCount: "",
+      blocks: [],
+      transactions: [],
       apidata: {},
       getNewBlock: [],
       cardList: []
@@ -123,12 +122,13 @@ export default {
             );
           });
           this.apidata = response;
-          console.log(this.apidata);
         }
       })
       .catch(function(error) {
         console.log(error);
       });
+    var blocks = [];
+    var transactions = [];
     axios
       .post("http://192.168.100.2:8545", {
         jsonrpc: "2.0",
@@ -138,25 +138,37 @@ export default {
       })
       .then(res => {
         this.number = parseInt(res.data.result, 16);
+        for (var i = this.number; i > this.number - 10; i--) {
+          axios
+            .post("http://192.168.100.2:8545", {
+              jsonrpc: "2.0",
+              method: "eth_getBlockByNumber",
+              params: ["0x" + i.toString(16), true],
+              id: i
+            })
+            .then(res => {
+              res.data.result.number = parseInt(res.data.result.number, 16);
+              res.data.result.timestamp = formatDate(
+                new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+                "yyyy-MM-dd hh:mm:ss"
+              );
+              blocks.push(res.data);
+            });
+        }
+        this.blocks = blocks;
+      });
+    axios
+      .post("http://192.168.100.2:8545", {
+        jsonrpc: "2.0",
+        method: "net_peerCount",
+        params: [],
+        id: 2
+      })
+      .then(res => {
+        this.peerCount = parseInt(res.data.result, 16);
       });
     var that = this;
-    // _.debounce(
-    //   function() {
-    //     axios
-    //       .post("http://192.168.100.2:8545", {
-    //         jsonrpc: "2.0",
-    //         method: "eth_blockNumber",
-    //         params: [],
-    //         id: 1
-    //       })
-    //       .then(res => {
-    //         that.number = parseInt(res.data.result, 16);
-    //         console.log(that);
-    //       });
-    //   },
-    //   1000,
-    //   { maxWait: 1000 }
-    // );
+
     setInterval(function() {
       axios
         .post("http://192.168.100.2:8545", {
@@ -167,7 +179,35 @@ export default {
         })
         .then(res => {
           that.number = parseInt(res.data.result, 16);
-          console.log(res);
+
+          axios
+            .post("http://192.168.100.2:8545", {
+              jsonrpc: "2.0",
+              method: "eth_getBlockByNumber",
+              params: ["0x" + that.number.toString(16), true],
+              id: that.number
+            })
+            .then(res => {
+              res.data.result.number = parseInt(res.data.result.number, 16);
+              res.data.result.timestamp = formatDate(
+                new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+                "yyyy-MM-dd hh:mm:ss"
+              );
+              blocks.unshift(res.data);
+              blocks.pop();
+            });
+
+          that.blocks = blocks;
+        });
+      axios
+        .post("http://192.168.100.2:8545", {
+          jsonrpc: "2.0",
+          method: "net_peerCount",
+          params: [],
+          id: 2
+        })
+        .then(res => {
+          that.peerCount = parseInt(res.data.result, 16);
         });
     }, 15000);
   },
