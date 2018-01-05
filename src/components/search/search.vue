@@ -260,7 +260,6 @@ export default {
             );
           });
           this.apidata = response;
-          console.log(this.apidata);
         }
       })
       .catch(function(error) {

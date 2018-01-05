@@ -14,7 +14,7 @@
               <span>{{peerCount}}</span>
             </li>
             <li>
-              存证TX条目数量
+              交易数量
               <span>{{10}}</span>
             </li>
           </ul>
@@ -59,7 +59,7 @@
                   <th>所属应用</th>
                   <th>交易哈希</th>
                   <th>存证信息</th>
-                  <th>上链时间</th>
+                  <th>交易时间</th>
                 </tr>
               </thead>
               <tbody>
