@@ -95,6 +95,7 @@ export default {
       number: "",
       peerCount: "",
       blocks: [],
+      qblocks: [],
       transactions: [],
       apidata: {},
       getNewBlock: [],
@@ -128,6 +129,7 @@ export default {
         console.log(error);
       });
     var blocks = [];
+    var qblocks = [];
     var transactions = [];
     axios
       .post("http://192.168.100.2:8545", {
@@ -156,6 +158,29 @@ export default {
             });
         }
         this.blocks = blocks;
+      })
+      .then(res => {
+        // console.log(res);
+        // this.number = parseInt(res.data.result, 16);
+        for (var i = this.number; i > this.number - 5000; i--) {
+          axios
+            .post("http://192.168.100.2:8545", {
+              jsonrpc: "2.0",
+              method: "eth_getBlockByNumber",
+              params: ["0x" + i.toString(16), true],
+              id: i
+            })
+            .then(res => {
+              res.data.result.number = parseInt(res.data.result.number, 16);
+              res.data.result.timestamp = formatDate(
+                new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+                "yyyy-MM-dd hh:mm:ss"
+              );
+              qblocks.push(res.data);
+            });
+        }
+        this.qblocks = qblocks;
+        console.log(this.qblocks);
       });
     axios
       .post("http://192.168.100.2:8545", {
