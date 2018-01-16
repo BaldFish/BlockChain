@@ -131,8 +131,9 @@ export default {
     var blocks = [];
     var qblocks = [];
     var transactions = [];
+    // 获取区块数量
     axios
-      .post("http://192.168.100.2:8545", {
+      .post("http://47.92.5.236:8545", {
         jsonrpc: "2.0",
         method: "eth_blockNumber",
         params: [],
@@ -140,9 +141,10 @@ export default {
       })
       .then(res => {
         this.number = parseInt(res.data.result, 16);
+        // 获取最新10个区块
         for (var i = this.number; i > this.number - 10; i--) {
           axios
-            .post("http://192.168.100.2:8545", {
+            .post("http://47.92.5.236:8545", {
               jsonrpc: "2.0",
               method: "eth_getBlockByNumber",
               params: ["0x" + i.toString(16), true],
@@ -155,35 +157,35 @@ export default {
                 "yyyy-MM-dd hh:mm:ss"
               );
               blocks.push(res.data);
+              this.blocks = blocks.sort(function(a, b) {
+                return b.id - a.id;
+              });
             });
         }
-        this.blocks = blocks;
-      })
-      .then(res => {
-        // console.log(res);
-        // this.number = parseInt(res.data.result, 16);
-        for (var i = this.number; i > this.number - 5000; i--) {
-          axios
-            .post("http://192.168.100.2:8545", {
-              jsonrpc: "2.0",
-              method: "eth_getBlockByNumber",
-              params: ["0x" + i.toString(16), true],
-              id: i
-            })
-            .then(res => {
-              res.data.result.number = parseInt(res.data.result.number, 16);
-              res.data.result.timestamp = formatDate(
-                new Date(parseInt(res.data.result.timestamp, 16) * 1000),
-                "yyyy-MM-dd hh:mm:ss"
-              );
-              qblocks.push(res.data);
-            });
-        }
-        this.qblocks = qblocks;
-        console.log(this.qblocks);
+        return res;
       });
+    // .then(res => {
+    //   for (var i = this.number; i > this.number - 100; i--) {
+    //     axios
+    //       .post("http://47.92.5.236:8545", {
+    //         jsonrpc: "2.0",
+    //         method: "eth_getBlockByNumber",
+    //         params: ["0x" + i.toString(16), true],
+    //         id: i
+    //       })
+    //       .then(res => {
+    //         res.data.result.number = parseInt(res.data.result.number, 16);
+    //         res.data.result.timestamp = formatDate(
+    //           new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+    //           "yyyy-MM-dd hh:mm:ss"
+    //         );
+    //         qblocks.push(res.data);
+    //         this.qblocks = qblocks;
+    //       });
+    //   }
+    // });
     axios
-      .post("http://192.168.100.2:8545", {
+      .post("http://47.92.5.236:8545", {
         jsonrpc: "2.0",
         method: "net_peerCount",
         params: [],
@@ -192,11 +194,11 @@ export default {
       .then(res => {
         this.peerCount = parseInt(res.data.result, 16);
       });
+    // 每隔15秒重新获取数据并更新DOM
     var that = this;
-
     setInterval(function() {
       axios
-        .post("http://192.168.100.2:8545", {
+        .post("http://47.92.5.236:8545", {
           jsonrpc: "2.0",
           method: "eth_blockNumber",
           params: [],
@@ -206,7 +208,7 @@ export default {
           that.number = parseInt(res.data.result, 16);
 
           axios
-            .post("http://192.168.100.2:8545", {
+            .post("http://47.92.5.236:8545", {
               jsonrpc: "2.0",
               method: "eth_getBlockByNumber",
               params: ["0x" + that.number.toString(16), true],
@@ -220,12 +222,11 @@ export default {
               );
               blocks.unshift(res.data);
               blocks.pop();
+              that.blocks = blocks;
             });
-
-          that.blocks = blocks;
         });
       axios
-        .post("http://192.168.100.2:8545", {
+        .post("http://47.92.5.236:8545", {
           jsonrpc: "2.0",
           method: "net_peerCount",
           params: [],
