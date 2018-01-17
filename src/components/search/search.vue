@@ -8,7 +8,7 @@
         <option value="trade_hash">交易哈希</option>
         <option value="account_balance">账户余额</option>
       </select>
-      <input class="search_ipt" type="text" placeholder="请输入查询条件" v-model="search_content">
+      <input class="search_ipt" type="text" placeholder="请输入查询条件" v-model="search_content" @keyup.enter.prevent="search">
       <button class="btn" @click.prevent="search">搜索</button>
     </div>
     <div class="content">
@@ -273,94 +273,119 @@ export default {
       return time;
     },
     search() {
+      this.time = this.$options.methods.getSeachTime();
       if (this.searchType === "block_height") {
-        this.time = this.$options.methods.getSeachTime();
-        this.getBlockHeight = _.find(this.apidata.getNewBlock, item => {
-          return item.number === this.search_content;
-        });
-        if (!this.getBlockHeight) {
-          this.getBlockHeight = {
-            number: "",
-            hash: "",
-            parentHash: "",
-            nonce: "",
-            sha3Uncles: "",
-            logsBloom: "",
-            transactionsRoot: "",
-            stateRoot: "",
-            miner: "",
-            difficulty: "",
-            totalDifficulty: "",
-            extraData: "",
-            size: "",
-            gasLimit: "",
-            gasUsed: "",
-            timestamp: "",
-            transactions: "",
-            uncles: ""
-          };
-        }
+        axios
+          .post("http://47.92.5.236:8545", {
+            jsonrpc: "2.0",
+            method: "eth_getBlockByNumber",
+            params: ["0x" + parseInt(this.search_content).toString(16), true],
+            id: 1
+          })
+          .then(res => {
+            this.getBlockHeight = res.data.result;
+            if (!this.getBlockHeight) {
+              this.getBlockHeight = {
+                number: "",
+                hash: "",
+                parentHash: "",
+                nonce: "",
+                sha3Uncles: "",
+                logsBloom: "",
+                transactionsRoot: "",
+                stateRoot: "",
+                miner: "",
+                difficulty: "",
+                totalDifficulty: "",
+                extraData: "",
+                size: "",
+                gasLimit: "",
+                gasUsed: "",
+                timestamp: "",
+                transactions: "",
+                uncles: ""
+              };
+            }
+          });
       } else if (this.searchType === "block_hash") {
-        this.time = this.$options.methods.getSeachTime();
-        this.getBlockHash = _.find(this.apidata.getNewBlock, item => {
-          return item.hash === this.search_content;
-        });
-        if (!this.getBlockHash) {
-          this.getBlockHash = {
-            number: "",
-            hash: "",
-            parentHash: "",
-            nonce: "",
-            sha3Uncles: "",
-            logsBloom: "",
-            transactionsRoot: "",
-            stateRoot: "",
-            miner: "",
-            difficulty: "",
-            totalDifficulty: "",
-            extraData: "",
-            size: "",
-            gasLimit: "",
-            gasUsed: "",
-            timestamp: "",
-            transactions: "",
-            uncles: ""
-          };
-        }
+        // console.log(this.search_content);
+        axios
+          .post("http://47.92.5.236:8545", {
+            jsonrpc: "2.0",
+            method: "eth_getBlockByHash",
+            params: [this.search_content, true],
+            id: 2
+          })
+          .then(res => {
+            this.getBlockHash = res.data.result;
+            if (!this.getBlockHash) {
+              this.getBlockHash = {
+                number: "",
+                hash: "",
+                parentHash: "",
+                nonce: "",
+                sha3Uncles: "",
+                logsBloom: "",
+                transactionsRoot: "",
+                stateRoot: "",
+                miner: "",
+                difficulty: "",
+                totalDifficulty: "",
+                extraData: "",
+                size: "",
+                gasLimit: "",
+                gasUsed: "",
+                timestamp: "",
+                transactions: "",
+                uncles: ""
+              };
+            }
+          });
       } else if (this.searchType === "trade_hash") {
-        this.time = this.$options.methods.getSeachTime();
-        this.getTradeHash = _.find(this.apidata.cardList, item => {
-          return item.hash === this.search_content;
-        });
-        if (!this.getTradeHash) {
-          this.getTradeHash = {
-            hash: "",
-            nonce: "",
-            blockHash: "",
-            blockNumber: "",
-            timestamp: "",
-            transactionIndex: "",
-            partner: "",
-            from: "",
-            to: "",
-            value: "",
-            gas: "",
-            gasPrice: "",
-            input: ""
-          };
-        }
+        axios
+          .post("http://47.92.5.236:8545", {
+            jsonrpc: "2.0",
+            method: "eth_getTransactionByHash",
+            params: [this.search_content],
+            id: 3
+          })
+          .then(res => {
+            this.getTradeHash = res.data.result;
+            if (!this.getTradeHash) {
+              this.getTradeHash = {
+                hash: "",
+                nonce: "",
+                blockHash: "",
+                blockNumber: "",
+                timestamp: "",
+                transactionIndex: "",
+                partner: "",
+                from: "",
+                to: "",
+                value: "",
+                gas: "",
+                gasPrice: "",
+                input: ""
+              };
+            }
+          });
       } else if (this.searchType === "account_balance") {
-        this.time = this.$options.methods.getSeachTime();
-        this.getAccountBalance = _.find(this.apidata.balance, item => {
-          return item.miner === this.search_content;
-        });
-        console.log(this.getAccountBalance);
-        if (!this.getAccountBalance) {
-          this.getAccountBalance = {
-            miner: "",
-            result: ""
-          };
-        }
+        axios
+          .post("http://47.92.5.236:8545", {
+            jsonrpc: "2.0",
+            method: "eth_getBalance",
+            params: [this.search_content, "latest"],
+            id: 4
+          })
+          .then(res => {
+            this.getAccountBalance = res.data.result;
+            if (!this.getAccountBalance) {
+              this.getAccountBalance = {
+                miner: "",
+                result: ""
+              };
+            }
+          });
       }
     }
   }
@@ -388,6 +413,7 @@ export default {
   }
 
   .search_ipt {
+    cursor: auto;
     padding: 0 10px;
     width: 40%;
   }

@@ -164,6 +164,7 @@ export default {
         }
         return res;
       });
+    //获取交易数量及最新10条交易
     // .then(res => {
     //   for (var i = this.number; i > this.number - 100; i--) {
     //     axios
