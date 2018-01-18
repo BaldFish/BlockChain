@@ -2,7 +2,7 @@
   <div class="search">
 
     <div class="search_box">
-      <select name="" class="search_select" v-model="searchType">
+      <select name="" class="search_select" v-model="searchType" @change="clearInput">
         <option value="block_height">区块高度</option>
         <option value="block_hash">区块哈希</option>
         <option value="trade_hash">交易哈希</option>
@@ -203,7 +203,7 @@
         </tr>
         <tr>
           <td>余额</td>
-          <td>{{Number(getAccountBalance.result)}}</td>
+          <td>{{getAccountBalance.result}}</td>
         </tr>
 
       </table>
@@ -249,13 +249,13 @@ export default {
           response.getNewBlock.forEach(item => {
             item.number = parseInt(item.number, 16).toString();
             item.timestamp = formatDate(
-              new Date(Number(item.timestamp)),
+              new Date(parseInt(item.timestamp)),
               "yyyy-MM-dd hh:mm:ss"
             );
           });
           response.cardList.forEach(item => {
             item.timestamp = formatDate(
-              new Date(Number(item.timestamp)),
+              new Date(parseInt(item.timestamp)),
               "yyyy-MM-dd hh:mm:ss"
             );
           });
@@ -267,6 +267,21 @@ export default {
       });
   },
   methods: {
+    clearInput() {
+      this.time = "";
+      this.search_content = "";
+      this.getBlockHeight = {
+        transactions: []
+      };
+      this.getBlockHash = {
+        transactions: []
+      };
+      this.getTradeHash = {};
+      this.getAccountBalance = {
+        miner: "",
+        result: ""
+      };
+    },
     getSeachTime() {
       var time = new Date();
       time = formatDate(time, "yyyy-MM-dd hh:mm:ss");
@@ -283,6 +298,11 @@ export default {
             id: 1
           })
           .then(res => {
+            res.data.result.number = parseInt(res.data.result.number);
+            res.data.result.timestamp = formatDate(
+              new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+              "yyyy-MM-dd hh:mm:ss"
+            );
             this.getBlockHeight = res.data.result;
             if (!this.getBlockHeight) {
               this.getBlockHeight = {
@@ -317,6 +337,11 @@ export default {
             id: 2
           })
           .then(res => {
+            res.data.result.number = parseInt(res.data.result.number);
+            res.data.result.timestamp = formatDate(
+              new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+              "yyyy-MM-dd hh:mm:ss"
+            );
             this.getBlockHash = res.data.result;
             if (!this.getBlockHash) {
               this.getBlockHash = {
@@ -350,6 +375,11 @@ export default {
             id: 3
           })
           .then(res => {
+            res.data.result.blockNumber = parseInt(res.data.result.blockNumber);
+            // res.data.result.timestamp = formatDate(
+            //   new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+            //   "yyyy-MM-dd hh:mm:ss"
+            // );
             this.getTradeHash = res.data.result;
             if (!this.getTradeHash) {
               this.getTradeHash = {
@@ -378,7 +408,8 @@ export default {
             id: 4
           })
           .then(res => {
-            this.getAccountBalance = res.data.result;
+            this.getAccountBalance.result = parseInt(res.data.result);
+            this.getAccountBalance.miner = this.search_content;
             if (!this.getAccountBalance) {
               this.getAccountBalance = {
                 miner: "",
