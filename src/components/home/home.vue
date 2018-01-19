@@ -85,7 +85,9 @@
 import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
 import _ from "lodash";
-
+var Web3 = require("web3");
+var web3 = new Web3(Web3.givenProvider || "http://47.92.5.236:8545");
+console.log(web3);
 const ERR_OK = 0;
 export default {
   name: "home",
@@ -164,27 +166,7 @@ export default {
         }
         return res;
       });
-    //获取交易数量及最新10条交易
-    // .then(res => {
-    //   for (var i = this.number; i > this.number - 100; i--) {
-    //     axios
-    //       .post("http://47.92.5.236:8545", {
-    //         jsonrpc: "2.0",
-    //         method: "eth_getBlockByNumber",
-    //         params: ["0x" + i.toString(16), true],
-    //         id: i
-    //       })
-    //       .then(res => {
-    //         res.data.result.number = parseInt(res.data.result.number, 16);
-    //         res.data.result.timestamp = formatDate(
-    //           new Date(parseInt(res.data.result.timestamp, 16) * 1000),
-    //           "yyyy-MM-dd hh:mm:ss"
-    //         );
-    //         qblocks.push(res.data);
-    //         this.qblocks = qblocks;
-    //       });
-    //   }
-    // });
+
     axios
       .post("http://47.92.5.236:8545", {
         jsonrpc: "2.0",
@@ -237,8 +219,15 @@ export default {
           that.peerCount = parseInt(res.data.result, 16);
         });
     }, 15000);
+    // this.$options.methods.getTransactionCount();
   },
-  methods: {}
+  methods: {
+    getTransactionCount: function() {
+      web3.eth.getBlockNumber().then(res => {
+        console.log(res);
+      });
+    }
+  }
 };
 </script>
 
