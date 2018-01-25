@@ -86,8 +86,15 @@ import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
 import _ from "lodash";
 var Web3 = require("web3");
-var web3 = new Web3(Web3.givenProvider || "http://47.92.5.236:8545");
-console.log(web3);
+// var web3 = new Web3(Web3.givenProvider || "ws://47.92.5.236:8546");
+var web3 = new Web3();
+web3.setProvider(new web3.providers.HttpProvider("http://47.92.5.236:8545"));
+var coinbase = web3.eth.coinbase;
+console.log(coinbase);
+
+var balance = web3.eth.getBalance(coinbase);
+console.log(balance.toString(10));
+console.log(web3.eth.blockNumber);
 const ERR_OK = 0;
 export default {
   name: "home",
@@ -105,6 +112,9 @@ export default {
     };
   },
   mounted() {
+    axios.get("/api/Tnumber").then(response => {
+      console.log(response);
+    });
     axios
       .get("/api")
       .then(response => {
@@ -175,7 +185,7 @@ export default {
         id: 2
       })
       .then(res => {
-        this.peerCount = parseInt(res.data.result, 16);
+        this.peerCount = parseInt(res.data.result, 16) + 1;
       });
     // 每隔15秒重新获取数据并更新DOM
     var that = this;
@@ -219,14 +229,12 @@ export default {
           that.peerCount = parseInt(res.data.result, 16);
         });
     }, 15000);
-    // this.$options.methods.getTransactionCount();
+    // console.log(web3.eth.blockNumber);
+    // console.log(this.$options.methods.getTransactionCount);
+    this.$options.methods.getTransactionCount();
   },
   methods: {
-    getTransactionCount: function() {
-      web3.eth.getBlockNumber().then(res => {
-        console.log(res);
-      });
-    }
+    getTransactionCount: function() {}
   }
 };
 </script>

@@ -240,31 +240,31 @@ export default {
     };
   },
   created() {
-    axios
-      .get("/api")
-      .then(response => {
-        var response = response.data;
-        if (response.errno === ERR_OK) {
-          response = response.data;
-          response.getNewBlock.forEach(item => {
-            item.number = parseInt(item.number, 16).toString();
-            item.timestamp = formatDate(
-              new Date(parseInt(item.timestamp)),
-              "yyyy-MM-dd hh:mm:ss"
-            );
-          });
-          response.cardList.forEach(item => {
-            item.timestamp = formatDate(
-              new Date(parseInt(item.timestamp)),
-              "yyyy-MM-dd hh:mm:ss"
-            );
-          });
-          this.apidata = response;
-        }
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+    // axios
+    //   .get("/api")
+    //   .then(response => {
+    //     var response = response.data;
+    //     if (response.errno === ERR_OK) {
+    //       response = response.data;
+    //       response.getNewBlock.forEach(item => {
+    //         item.number = parseInt(item.number, 16).toString();
+    //         item.timestamp = formatDate(
+    //           new Date(parseInt(item.timestamp)),
+    //           "yyyy-MM-dd hh:mm:ss"
+    //         );
+    //       });
+    //       response.cardList.forEach(item => {
+    //         item.timestamp = formatDate(
+    //           new Date(parseInt(item.timestamp)),
+    //           "yyyy-MM-dd hh:mm:ss"
+    //         );
+    //       });
+    //       this.apidata = response;
+    //     }
+    //   })
+    //   .catch(function(error) {
+    //     console.log(error);
+    //   });
   },
   methods: {
     clearInput() {

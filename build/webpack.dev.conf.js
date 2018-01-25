@@ -15,6 +15,9 @@ const appData = require("../data.json"); //加载本地数据文件
 const getNewBlock = appData.getNewBlock; //获取对应的本地数据
 const cardList = appData.cardList;
 const apiRoutes = express.Router();
+const axios = require("axios");
+var Web3 = require("web3");
+var web3 = new Web3(Web3.givenProvider || "ws://47.92.5.236:8545");
 app.use("/api", apiRoutes);
 //数据接口
 
@@ -51,18 +54,21 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     },
     //数据接口
     before(app) {
-      app.get("/api/getNewBlock", (req, res) => {
+      app.get("/api/Tnumber", (req, res) => {
+        // web3.eth.getBlockNumber().then(response => {
+        //   res.json({
+        //     errno: 0,
+        //     data: response
+        //   });
+        // });
+        // res.json({ errno: 0, data: web3.eth.getBlockNumber });
+      });
+      app.get("/api/cardList", (req, res) => {
         res.json({
           errno: 0,
-          data: getNewBlock
+          data: cardList
         });
-      }),
-        app.get("/api/cardList", (req, res) => {
-          res.json({
-            errno: 0,
-            data: cardList
-          });
-        });
+      });
       app.get("/api", (req, res) => {
         res.json({ errno: 0, data: appData });
       });
