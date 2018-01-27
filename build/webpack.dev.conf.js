@@ -16,8 +16,6 @@ const getNewBlock = appData.getNewBlock; //获取对应的本地数据
 const cardList = appData.cardList;
 const apiRoutes = express.Router();
 const axios = require("axios");
-var Web3 = require("web3");
-var web3 = new Web3(Web3.givenProvider || "ws://47.92.5.236:8545");
 app.use("/api", apiRoutes);
 //数据接口
 
@@ -43,9 +41,12 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     host: HOST || config.dev.host,
     port: PORT || config.dev.port,
     open: config.dev.autoOpenBrowser,
-    overlay: config.dev.errorOverlay
-      ? { warnings: false, errors: true }
-      : false,
+    overlay: config.dev.errorOverlay ?
+      {
+        warnings: false,
+        errors: true
+      } :
+      false,
     publicPath: config.dev.assetsPublicPath,
     proxy: config.dev.proxyTable,
     quiet: true, // necessary for FriendlyErrorsPlugin
@@ -54,15 +55,6 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     },
     //数据接口
     before(app) {
-      app.get("/api/Tnumber", (req, res) => {
-        // web3.eth.getBlockNumber().then(response => {
-        //   res.json({
-        //     errno: 0,
-        //     data: response
-        //   });
-        // });
-        // res.json({ errno: 0, data: web3.eth.getBlockNumber });
-      });
       app.get("/api/cardList", (req, res) => {
         res.json({
           errno: 0,
@@ -70,7 +62,10 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         });
       });
       app.get("/api", (req, res) => {
-        res.json({ errno: 0, data: appData });
+        res.json({
+          errno: 0,
+          data: appData
+        });
       });
     }
     //数据接口
@@ -113,9 +108,9 @@ module.exports = new Promise((resolve, reject) => {
               }:${port}`
             ]
           },
-          onErrors: config.dev.notifyOnErrors
-            ? utils.createNotifierCallback()
-            : undefined
+          onErrors: config.dev.notifyOnErrors ?
+            utils.createNotifierCallback() :
+            undefined
         })
       );
 

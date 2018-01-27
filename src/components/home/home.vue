@@ -7,7 +7,7 @@
           <ul class="count">
             <li>
               当前区块高度
-              <span>{{number}}</span>
+              <span>{{blockNumbers}}</span>
             </li>
             <li>
               记帐节点数
@@ -86,22 +86,236 @@ import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
 import _ from "lodash";
 var Web3 = require("web3");
-// var web3 = new Web3(Web3.givenProvider || "ws://47.92.5.236:8546");
 var web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider("http://47.92.5.236:8545"));
-var coinbase = web3.eth.coinbase;
-console.log(coinbase);
+var abi = [
+  {
+    constant: false,
+    inputs: [
+      { name: "typ", type: "string" },
+      { name: "desc", type: "string" },
+      { name: "hash", type: "string" },
+      { name: "dtime", type: "string" }
+    ],
+    name: "attest",
+    outputs: [],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [{ name: "newOwner", type: "address" }],
+    name: "setOwner",
+    outputs: [],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "partnerAttests",
+    outputs: [{ name: "", type: "uint256", value: "0" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "addr", type: "address" }],
+    name: "userInfo",
+    outputs: [
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "typ", type: "string" }],
+    name: "attestNunberByID",
+    outputs: [{ name: "", type: "uint256", value: "0" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "userNumber",
+    outputs: [{ name: "", type: "uint256", value: "0" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "addr", type: "address" }],
+    name: "balanceAt",
+    outputs: [{ name: "", type: "uint256", value: "0" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [{ name: "newAccount", type: "address" }],
+    name: "setFeeAccount",
+    outputs: [],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [
+      { name: "recipients", type: "address[]" },
+      { name: "values", type: "uint256[]" }
+    ],
+    name: "sendToMultiAddr",
+    outputs: [],
+    payable: true,
+    stateMutability: "payable",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "addr", type: "address" }],
+    name: "partnerInfo",
+    outputs: [
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "attestNunber",
+    outputs: [{ name: "", type: "uint256", value: "0" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [{ name: "recipient", type: "address" }],
+    name: "sendToAddr",
+    outputs: [],
+    payable: true,
+    stateMutability: "payable",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "hash", type: "string" }],
+    name: "acquireVerify",
+    outputs: [
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "partnerNumber",
+    outputs: [{ name: "", type: "uint256", value: "0" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "addr", type: "address" }],
+    name: "partnerAttestsByAddress",
+    outputs: [{ name: "", type: "uint256", value: "0" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "hash", type: "string" }],
+    name: "verify",
+    outputs: [{ name: "", type: "bool", value: false }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [
+      { name: "addr", type: "address" },
+      { name: "id", type: "string" },
+      { name: "desc", type: "string" },
+      { name: "cert", type: "string" }
+    ],
+    name: "setPartnerInfo",
+    outputs: [],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "i", type: "uint256" }],
+    name: "attestByIndex",
+    outputs: [
+      { name: "", type: "address" },
+      { name: "", type: "string" },
+      { name: "", type: "string" },
+      { name: "", type: "string" },
+      { name: "", type: "string" }
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [
+      { name: "addr", type: "address" },
+      { name: "id", type: "string" },
+      { name: "desc", type: "string" },
+      { name: "cert", type: "string" }
+    ],
+    name: "setUserInfo",
+    outputs: [],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
+    inputs: [],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "constructor"
+  }
+];
+var MyContract = web3.eth.contract(abi);
+var myContractInstance = MyContract.at(
+  "0xD656fd9Eb22a750198e353Ff0B74566e6EF5DB57"
+);
 
-var balance = web3.eth.getBalance(coinbase);
-console.log(balance.toString(10));
-console.log(web3.eth.blockNumber);
 const ERR_OK = 0;
 export default {
   name: "home",
 
   data() {
     return {
-      number: "",
+      blockNumbers: "",
       peerCount: "",
       blocks: [],
       qblocks: [],
@@ -112,9 +326,6 @@ export default {
     };
   },
   mounted() {
-    axios.get("/api/Tnumber").then(response => {
-      console.log(response);
-    });
     axios
       .get("/api")
       .then(response => {
@@ -152,9 +363,9 @@ export default {
         id: 1
       })
       .then(res => {
-        this.number = parseInt(res.data.result, 16);
+        this.blockNumbers = parseInt(res.data.result, 16);
         // 获取最新10个区块
-        for (var i = this.number; i > this.number - 10; i--) {
+        for (var i = this.blockNumbers; i > this.blockNumbers - 10; i--) {
           axios
             .post("http://47.92.5.236:8545", {
               jsonrpc: "2.0",
@@ -198,14 +409,14 @@ export default {
           id: 1
         })
         .then(res => {
-          that.number = parseInt(res.data.result, 16);
+          that.blockNumbers = parseInt(res.data.result, 16);
 
           axios
             .post("http://47.92.5.236:8545", {
               jsonrpc: "2.0",
               method: "eth_getBlockByNumber",
-              params: ["0x" + that.number.toString(16), true],
-              id: that.number
+              params: ["0x" + that.blockNumbers.toString(16), true],
+              id: that.blockNumbers
             })
             .then(res => {
               res.data.result.number = parseInt(res.data.result.number, 16);
@@ -229,12 +440,19 @@ export default {
           that.peerCount = parseInt(res.data.result, 16);
         });
     }, 15000);
-    // console.log(web3.eth.blockNumber);
-    // console.log(this.$options.methods.getTransactionCount);
-    this.$options.methods.getTransactionCount();
+
+    this.$options.methods.transactionCounts();
   },
   methods: {
-    getTransactionCount: function() {}
+    transactionCounts: function() {
+      console.log(myContractInstance.attestNunber().c.toString());
+      console.log(myContractInstance.attestByIndex(12));
+      console.log(
+        web3.eth.getTransactionCount(
+          "0x8c6050ca48ed30f3223d450eef3c8e9548ee230c"
+        )
+      );
+    }
   }
 };
 </script>
