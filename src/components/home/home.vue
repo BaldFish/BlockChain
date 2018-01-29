@@ -15,7 +15,7 @@
             </li>
             <li>
               交易数量
-              <span>{{10}}</span>
+              <span>{{transactionCounts}}</span>
             </li>
           </ul>
         </div>
@@ -63,11 +63,11 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in apidata.cardList">
-                  <td>{{item.partner}}</td>
-                  <td>{{item.hash}}</td>
-                  <td>{{item.transactionIndex}}</td>
-                  <td>{{item.timestamp}}</td>
+                <tr v-for="item in transactions">
+                  <td>{{item[0]}}</td>
+                  <td>{{item[3]}}</td>
+                  <td>{{item[2]}}</td>
+                  <td>{{item[4]}}</td>
                 </tr>
               </tbody>
             </table>
@@ -317,40 +317,41 @@ export default {
     return {
       blockNumbers: "",
       peerCount: "",
+      transactionCounts: "5",
       blocks: [],
       qblocks: [],
-      transactions: [],
-      apidata: {},
-      getNewBlock: [],
-      cardList: []
+      transactions: []
+      // apidata: {},
+      // getNewBlock: [],
+      // cardList: []
     };
   },
   mounted() {
-    axios
-      .get("/api")
-      .then(response => {
-        var response = response.data;
-        if (response.errno === ERR_OK) {
-          response = response.data;
-          response.getNewBlock.forEach(item => {
-            item.number = parseInt(item.number, 16).toString();
-            item.timestamp = formatDate(
-              new Date(Number(item.timestamp)),
-              "yyyy-MM-dd hh:mm:ss"
-            );
-          });
-          response.cardList.forEach(item => {
-            item.timestamp = formatDate(
-              new Date(Number(item.timestamp)),
-              "yyyy-MM-dd hh:mm:ss"
-            );
-          });
-          this.apidata = response;
-        }
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+    // axios
+    //   .get("/api")
+    //   .then(response => {
+    //     var response = response.data;
+    //     if (response.errno === ERR_OK) {
+    //       response = response.data;
+    //       response.getNewBlock.forEach(item => {
+    //         item.number = parseInt(item.number, 16).toString();
+    //         item.timestamp = formatDate(
+    //           new Date(Number(item.timestamp)),
+    //           "yyyy-MM-dd hh:mm:ss"
+    //         );
+    //       });
+    //       response.cardList.forEach(item => {
+    //         item.timestamp = formatDate(
+    //           new Date(Number(item.timestamp)),
+    //           "yyyy-MM-dd hh:mm:ss"
+    //         );
+    //       });
+    //       this.apidata = response;
+    //     }
+    //   })
+    //   .catch(function(error) {
+    //     console.log(error);
+    //   });
     var blocks = [];
     var qblocks = [];
     var transactions = [];
@@ -387,7 +388,7 @@ export default {
         }
         return res;
       });
-
+    //获取记帐节点数
     axios
       .post("http://47.92.5.236:8545", {
         jsonrpc: "2.0",
@@ -398,9 +399,21 @@ export default {
       .then(res => {
         this.peerCount = parseInt(res.data.result, 16) + 1;
       });
+    //获取交易数量
+    this.transactionCounts = myContractInstance.attestNunber().c.toString();
+    //获取最新10块交易信息
+    var counts = this.transactionCounts - 1;
+    for (var i = counts; i > counts - 10; i--) {
+      transactions.push(myContractInstance.attestByIndex(i));
+      this.transactions = transactions.sort(function(a, b) {
+        return b[5] - a[5];
+      });
+    }
+    console.log(this.transactions);
     // 每隔15秒重新获取数据并更新DOM
     var that = this;
     setInterval(function() {
+      //获取最新区块数和区块信息
       axios
         .post("http://47.92.5.236:8545", {
           jsonrpc: "2.0",
@@ -410,7 +423,7 @@ export default {
         })
         .then(res => {
           that.blockNumbers = parseInt(res.data.result, 16);
-
+          //获取最新区块信息
           axios
             .post("http://47.92.5.236:8545", {
               jsonrpc: "2.0",
@@ -429,6 +442,7 @@ export default {
               that.blocks = blocks;
             });
         });
+      //获取最新记帐节点数
       axios
         .post("http://47.92.5.236:8545", {
           jsonrpc: "2.0",
@@ -437,23 +451,45 @@ export default {
           id: 2
         })
         .then(res => {
-          that.peerCount = parseInt(res.data.result, 16);
+          that.peerCount = parseInt(res.data.result, 16) + 1;
         });
+      var newTransactionCounts = myContractInstance.attestNunber().c.toString();
+      var newCounts = newTransactionCounts - that.transactionCounts;
+      if (newCounts === 0) {
+      } else if (newCounts > 0) {
+        if (newCounts < 10) {
+          for (var i = 0; i < newCounts; i++) {
+            transactions.unshift(
+              myContractInstance.attestByIndex(
+                parseInt(that.transactionCounts) + i
+              )
+            );
+            transactions.pop();
+            that.transactions = transactions.sort(function(a, b) {
+              return b[5] - a[5];
+            });
+          }
+        } else {
+          for (var i = 0; i < 10; i++) {
+            transactions.unshift(
+              myContractInstance.attestByIndex(
+                parseInt(that.transactionCounts) + i
+              )
+            );
+            transactions.pop();
+            that.transactions = transactions.sort(function(a, b) {
+              return b[5] - a[5];
+            });
+          }
+        }
+        that.transactionCounts = newTransactionCounts;
+      }
     }, 15000);
-
-    this.$options.methods.transactionCounts();
+    // web3.eth.getTransactionCount(
+    //       "0x8c6050ca48ed30f3223d450eef3c8e9548ee230c"
+    //     )
   },
-  methods: {
-    transactionCounts: function() {
-      console.log(myContractInstance.attestNunber().c.toString());
-      console.log(myContractInstance.attestByIndex(12));
-      console.log(
-        web3.eth.getTransactionCount(
-          "0x8c6050ca48ed30f3223d450eef3c8e9548ee230c"
-        )
-      );
-    }
-  }
+  methods: {}
 };
 </script>
 
