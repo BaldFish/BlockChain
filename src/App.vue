@@ -70,7 +70,7 @@ export default {
 
   .text {
     background: url('./components/home/star24_on@2x.png') no-repeat left top;
-    padding-left: 20px;
+    padding-left: 40px;
     margin-right: 60px;
     font-size: 20px;
   }
@@ -80,14 +80,14 @@ export default {
 
     & > a {
       display: inline-block;
-      padding: 15px 10px;
-
-      &.router-link-active {
+      padding: 15px;
+      &.router-link-active,&:hover {
         color: #008080;
         border-bottom: 2px solid #008080;
       }
     }
   }
+  
 }
 
 .footer {
@@ -97,8 +97,10 @@ export default {
   padding: 15px;
 
   p {
+    width:1280px;
     height: 20px;
     line-height: 20px;
+    margin :0 auto
   }
 }
 </style>

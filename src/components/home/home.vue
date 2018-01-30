@@ -85,9 +85,11 @@
 import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
 import _ from "lodash";
+//实例化web3对象
 var Web3 = require("web3");
 var web3 = new Web3();
 web3.setProvider(new web3.providers.HttpProvider("http://47.92.5.236:8545"));
+//定义abi及调用合约
 var abi = [
   {
     constant: false,
@@ -322,8 +324,6 @@ export default {
       qblocks: [],
       transactions: []
       // apidata: {},
-      // getNewBlock: [],
-      // cardList: []
     };
   },
   mounted() {
@@ -409,7 +409,6 @@ export default {
         return b[5] - a[5];
       });
     }
-    console.log(this.transactions);
     // 每隔15秒重新获取数据并更新DOM
     var that = this;
     setInterval(function() {
@@ -453,6 +452,7 @@ export default {
         .then(res => {
           that.peerCount = parseInt(res.data.result, 16) + 1;
         });
+      //获取最新交易信息
       var newTransactionCounts = myContractInstance.attestNunber().c.toString();
       var newCounts = newTransactionCounts - that.transactionCounts;
       if (newCounts === 0) {
@@ -485,6 +485,7 @@ export default {
         that.transactionCounts = newTransactionCounts;
       }
     }, 15000);
+    //获取某一地址交易数量
     // web3.eth.getTransactionCount(
     //       "0x8c6050ca48ed30f3223d450eef3c8e9548ee230c"
     //     )
@@ -495,17 +496,17 @@ export default {
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
 .home {
-  box-sizing: border-box;
-  width: 1366px;
+  box-sizing:border-box;
   margin: 0 auto;
-
+  padding: 20px;
+  width :1280px
   .container {
-    padding: 20px;
+    width :100%;
 
     .container_box {
       .count_box {
         width: 100%;
-        padding: 20px;
+        
 
         .count {
           display: flex;
@@ -513,6 +514,7 @@ export default {
           li {
             display: inline-block;
             flex: 1;
+            text-align :center
 
             span {
               color: #0080ff;
