@@ -23,7 +23,7 @@
         <div class="block_box">
           <div class="clearfix block">
             <h2 class="fl">最新区块</h2>
-            <span class="fr">查看全部</span>
+            <span class="fr"></span>
           </div>
           <div class="con_tb">
             <table class='tb' width='100%'>
@@ -50,7 +50,7 @@
         <div class="block_box">
           <div class="clearfix block">
             <h2 class="fl">最新交易</h2>
-            <span class="fr">查看全部</span>
+            <span class="fr"></span>
           </div>
           <div class="con_tb">
             <table class='tb' width='100%'>
@@ -88,7 +88,9 @@ import _ from "lodash";
 //实例化web3对象
 var Web3 = require("web3");
 var web3 = new Web3();
-web3.setProvider(new web3.providers.HttpProvider("http://47.92.5.236:8545"));
+web3.setProvider(
+  new web3.providers.HttpProvider("http://blockchain.launchain.org:50000")
+);
 //定义abi及调用合约
 var abi = [
   {
@@ -357,7 +359,7 @@ export default {
     var transactions = [];
     // 获取区块数量
     axios
-      .post("http://47.92.5.236:8545", {
+      .post("http://blockchain.launchain.org:50000", {
         jsonrpc: "2.0",
         method: "eth_blockNumber",
         params: [],
@@ -368,7 +370,7 @@ export default {
         // 获取最新10个区块
         for (var i = this.blockNumbers; i > this.blockNumbers - 10; i--) {
           axios
-            .post("http://47.92.5.236:8545", {
+            .post("http://blockchain.launchain.org:50000", {
               jsonrpc: "2.0",
               method: "eth_getBlockByNumber",
               params: ["0x" + i.toString(16), true],
@@ -390,7 +392,7 @@ export default {
       });
     //获取记帐节点数
     axios
-      .post("http://47.92.5.236:8545", {
+      .post("http://blockchain.launchain.org:50000", {
         jsonrpc: "2.0",
         method: "net_peerCount",
         params: [],
@@ -414,7 +416,7 @@ export default {
     setInterval(function() {
       //获取最新区块数和区块信息
       axios
-        .post("http://47.92.5.236:8545", {
+        .post("http://blockchain.launchain.org:50000", {
           jsonrpc: "2.0",
           method: "eth_blockNumber",
           params: [],
@@ -424,7 +426,7 @@ export default {
           that.blockNumbers = parseInt(res.data.result, 16);
           //获取最新区块信息
           axios
-            .post("http://47.92.5.236:8545", {
+            .post("http://blockchain.launchain.org:50000", {
               jsonrpc: "2.0",
               method: "eth_getBlockByNumber",
               params: ["0x" + that.blockNumbers.toString(16), true],
@@ -443,7 +445,7 @@ export default {
         });
       //获取最新记帐节点数
       axios
-        .post("http://47.92.5.236:8545", {
+        .post("http://blockchain.launchain.org:50000", {
           jsonrpc: "2.0",
           method: "net_peerCount",
           params: [],

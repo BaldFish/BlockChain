@@ -95,12 +95,12 @@ export default {
   color: #fff;
   text-align: center;
   padding: 15px;
-
+  
   p {
     width:1280px;
     height: 20px;
     line-height: 20px;
-    margin :0 auto
+    margin:0 auto;
   }
 }
 </style>
