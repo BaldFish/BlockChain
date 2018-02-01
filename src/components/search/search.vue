@@ -217,6 +217,7 @@
 import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
 import _ from "lodash";
+const reqURL = "http://blockchain.launchain.org:50000";
 const ERR_OK = 0;
 export default {
   name: "search",
@@ -291,7 +292,7 @@ export default {
       this.time = this.$options.methods.getSeachTime();
       if (this.searchType === "block_height") {
         axios
-          .post("http://blockchain.launchain.org:50000", {
+          .post(reqURL, {
             jsonrpc: "2.0",
             method: "eth_getBlockByNumber",
             params: ["0x" + parseInt(this.search_content).toString(16), true],
@@ -330,7 +331,7 @@ export default {
       } else if (this.searchType === "block_hash") {
         // console.log(this.search_content);
         axios
-          .post("http://blockchain.launchain.org:50000", {
+          .post(reqURL, {
             jsonrpc: "2.0",
             method: "eth_getBlockByHash",
             params: [this.search_content, true],
@@ -368,7 +369,7 @@ export default {
           });
       } else if (this.searchType === "trade_hash") {
         axios
-          .post("http://blockchain.launchain.org:50000", {
+          .post(reqURL, {
             jsonrpc: "2.0",
             method: "eth_getTransactionByHash",
             params: [this.search_content],
@@ -401,7 +402,7 @@ export default {
           });
       } else if (this.searchType === "account_balance") {
         axios
-          .post("http://blockchain.launchain.org:50000", {
+          .post(reqURL, {
             jsonrpc: "2.0",
             method: "eth_getBalance",
             params: [this.search_content, "latest"],
@@ -427,7 +428,7 @@ export default {
 .search_box {
   box-sizing: border-box;
   text-align: center;
-  padding: 20px;
+  padding: 80px 20px 20px;
 
   .search_ipt, .search_select, .btn {
     outline: none;

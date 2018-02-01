@@ -20,7 +20,7 @@
     </keep-alive>
 
     <div class="footer">
-      <p>©2017 元征区块链技术研究院.京ICP备88888888号-8</p>
+      <p>©2018 元征区块链技术研究院.京ICP备88888888号-8</p>
       <p>版本
         <span>1.0.0</span>
       </p>
@@ -54,7 +54,8 @@ export default {
 }
 
 .head-wrap {
-  height: 60px;
+  // height: 60px;
+  position: fixed;
   width: 100%;
   background-color: #f7f8f8;
   border-bottom: 1px solid #e5e5e5;
@@ -94,12 +95,12 @@ export default {
   background-color: #3a3a3a;
   color: #fff;
   text-align: center;
-  padding: 15px;
+  padding: 10px;
   
   p {
     width:1280px;
-    height: 20px;
-    line-height: 20px;
+    height: 30px;
+    line-height: 30px;
     margin:0 auto;
   }
 }

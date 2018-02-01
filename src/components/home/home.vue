@@ -6,15 +6,15 @@
         <div class="count_box">
           <ul class="count">
             <li>
-              当前区块高度
+              当前区块高度：
               <span>{{blockNumbers}}</span>
             </li>
             <li>
-              记帐节点数
+              记帐节点数：
               <span>{{peerCount}}</span>
             </li>
             <li>
-              交易数量
+              交易数量：
               <span>{{transactionCounts}}</span>
             </li>
           </ul>
@@ -26,13 +26,13 @@
             <span class="fr"></span>
           </div>
           <div class="con_tb">
-            <table class='tb' width='100%'>
+            <table class='tb'>
               <thead>
                 <tr>
-                  <th>区块高度</th>
-                  <th>出块节点名称</th>
-                  <th>交易笔数</th>
-                  <th>出块时间</th>
+                  <th style="width:15%">区块高度</th>
+                  <th style="width:50%">出块节点名称</th>
+                  <th style="width:15%">交易笔数</th>
+                  <th style="width:20%">出块时间</th>
                 </tr>
               </thead>
               <tbody>
@@ -53,13 +53,13 @@
             <span class="fr"></span>
           </div>
           <div class="con_tb">
-            <table class='tb' width='100%'>
+            <table class='tb'>
               <thead>
                 <tr>
-                  <th>所属应用</th>
-                  <th>交易哈希</th>
-                  <th>存证信息</th>
-                  <th>交易时间</th>
+                  <th style="width:15%">所属应用</th>
+                  <th style="width:50%">交易哈希</th>
+                  <th style="width:15%">存证信息</th>
+                  <th style="width:20%">交易时间</th>
                 </tr>
               </thead>
               <tbody>
@@ -85,12 +85,11 @@
 import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
 import _ from "lodash";
+const reqURL = "http://blockchain.launchain.org:50000";
 //实例化web3对象
 var Web3 = require("web3");
 var web3 = new Web3();
-web3.setProvider(
-  new web3.providers.HttpProvider("http://blockchain.launchain.org:50000")
-);
+web3.setProvider(new web3.providers.HttpProvider(reqURL));
 //定义abi及调用合约
 var abi = [
   {
@@ -359,7 +358,7 @@ export default {
     var transactions = [];
     // 获取区块数量
     axios
-      .post("http://blockchain.launchain.org:50000", {
+      .post(reqURL, {
         jsonrpc: "2.0",
         method: "eth_blockNumber",
         params: [],
@@ -370,7 +369,7 @@ export default {
         // 获取最新10个区块
         for (var i = this.blockNumbers; i > this.blockNumbers - 10; i--) {
           axios
-            .post("http://blockchain.launchain.org:50000", {
+            .post(reqURL, {
               jsonrpc: "2.0",
               method: "eth_getBlockByNumber",
               params: ["0x" + i.toString(16), true],
@@ -392,7 +391,7 @@ export default {
       });
     //获取记帐节点数
     axios
-      .post("http://blockchain.launchain.org:50000", {
+      .post(reqURL, {
         jsonrpc: "2.0",
         method: "net_peerCount",
         params: [],
@@ -416,7 +415,7 @@ export default {
     setInterval(function() {
       //获取最新区块数和区块信息
       axios
-        .post("http://blockchain.launchain.org:50000", {
+        .post(reqURL, {
           jsonrpc: "2.0",
           method: "eth_blockNumber",
           params: [],
@@ -426,7 +425,7 @@ export default {
           that.blockNumbers = parseInt(res.data.result, 16);
           //获取最新区块信息
           axios
-            .post("http://blockchain.launchain.org:50000", {
+            .post(reqURL, {
               jsonrpc: "2.0",
               method: "eth_getBlockByNumber",
               params: ["0x" + that.blockNumbers.toString(16), true],
@@ -445,7 +444,7 @@ export default {
         });
       //获取最新记帐节点数
       axios
-        .post("http://blockchain.launchain.org:50000", {
+        .post(reqURL, {
           jsonrpc: "2.0",
           method: "net_peerCount",
           params: [],
@@ -500,7 +499,7 @@ export default {
 .home {
   box-sizing:border-box;
   margin: 0 auto;
-  padding: 20px;
+  padding: 80px 20px 20px 20px;
   width :1280px
   .container {
     width :100%;
@@ -508,7 +507,10 @@ export default {
     .container_box {
       .count_box {
         width: 100%;
-        
+        height :60px;
+        line-height :60px;
+        margin-bottom:20px;
+        background-color :#07a178
 
         .count {
           display: flex;
@@ -516,10 +518,11 @@ export default {
           li {
             display: inline-block;
             flex: 1;
-            text-align :center
+            text-align :center;
+            color :#fafdfc;
 
             span {
-              color: #0080ff;
+              color: #e2cf7a;
               padding: 5px;
             }
           }
@@ -527,13 +530,20 @@ export default {
       }
 
       .block_box {
-        border: 1px solid #bfc0c1;
+        // border: 1px solid #bfc0c1;
 
         .block {
           border-bottom: 1px solid #bfc0c1;
-
+          padding-top :20px;
+          margin-bottom :10px;
           h2 {
-            padding: 10px 20px;
+            // padding: 10px 20px;
+            display: inline-block;
+            color: #22b398;
+            font-size: 24px;
+            line-height: 100%;
+            padding-bottom: 18px;
+            border-bottom: 3px solid #b5b5b5;
           }
 
           span {
@@ -544,20 +554,34 @@ export default {
         }
 
         .con_tb {
-          padding: 10px 20px;
-
-          thead {
-            background: #8882aa;
-          }
-
-          tr {
-            border-bottom: 1px solid #bfc0c1;
-          }
-
-          th, td {
-            padding: 10px;
+          // padding: 10px 20px;
+          table{
             text-align: center;
+            width: 100%;
+            border-spacing: 0;
+            table-layout:fixed;
+            thead {
+              background: #eee;
+              font-size: 16px;
+              color: #707070;
+              line-height: 40px;
+            }
+            tbody{
+              tr {
+                border-bottom: 1px solid #bfc0c1;
+              }
+            }
+            
+
+            td {
+            padding: 15px;
+            // text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            }
           }
+          
         }
       }
     }
