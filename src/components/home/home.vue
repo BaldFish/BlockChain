@@ -36,7 +36,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in blocks">
+                <tr v-for="(item,index) in blocks" :class="index%2?'even':''">
                   <td>{{item.result.number}}</td>
                   <td>{{item.result.miner}}</td>
                   <td>{{item.result.transactions.length}}</td>
@@ -63,7 +63,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in transactions">
+                <tr v-for="(item,index) in transactions" :class="index%2?'even':''">
                   <td>{{item[0]}}</td>
                   <td>{{item[3]}}</td>
                   <td>{{item[2]}}</td>
@@ -497,20 +497,21 @@ export default {
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
 .home {
-  box-sizing:border-box;
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 80px 20px 20px 20px;
-  width :1280px
+  width: 1280px;
+
   .container {
-    width :100%;
+    width: 100%;
 
     .container_box {
       .count_box {
         width: 100%;
-        height :60px;
-        line-height :60px;
-        margin-bottom:20px;
-        background-color :#07a178
+        height: 60px;
+        line-height: 60px;
+        margin-bottom: 20px;
+        background-color: #07a178;
 
         .count {
           display: flex;
@@ -518,8 +519,8 @@ export default {
           li {
             display: inline-block;
             flex: 1;
-            text-align :center;
-            color :#fafdfc;
+            text-align: center;
+            color: #fafdfc;
 
             span {
               color: #e2cf7a;
@@ -531,11 +532,11 @@ export default {
 
       .block_box {
         // border: 1px solid #bfc0c1;
-
         .block {
           border-bottom: 1px solid #bfc0c1;
-          padding-top :20px;
-          margin-bottom :10px;
+          padding-top: 20px;
+          margin-bottom: 10px;
+
           h2 {
             // padding: 10px 20px;
             display: inline-block;
@@ -555,33 +556,32 @@ export default {
 
         .con_tb {
           // padding: 10px 20px;
-          table{
+          table {
             text-align: center;
             width: 100%;
             border-spacing: 0;
-            table-layout:fixed;
+            table-layout: fixed;
+            color: #707070;
+
             thead {
-              background: #eee;
+              background-color: #eeeeee;
               font-size: 16px;
-              color: #707070;
               line-height: 40px;
             }
-            tbody{
-              tr {
-                border-bottom: 1px solid #bfc0c1;
+
+            tbody {
+              .even {
+                background-color: #eeeeee;
               }
             }
-            
 
             td {
-            padding: 15px;
-            // text-align: center;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+              padding: 15px;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
             }
           }
-          
         }
       }
     }

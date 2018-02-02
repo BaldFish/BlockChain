@@ -424,11 +424,14 @@ export default {
 };
 </script>
 
-<style scoped lang="stylus" rel="stylesheet/stylus">
+<style scoped lang="stylus">
 .search_box {
   box-sizing: border-box;
   text-align: center;
   padding: 80px 20px 20px;
+  width: 1280px;
+  margin: 0 auto;
+  font-size: 0;
 
   .search_ipt, .search_select, .btn {
     outline: none;
@@ -437,11 +440,13 @@ export default {
     border-radius: 5px;
     height: 40px;
     line-height: 40px;
-    background: #c0c0c0;
-    margin-right: 10px;
+    background: #19b973;
+    vertical-align: top;
     cursor: pointer;
     border: none;
-    font-size: 14px;
+    font-size: 16px;
+    color: #ffffff;
+    margin: 0 1px;
   }
 
   .search_ipt {
@@ -451,12 +456,18 @@ export default {
   }
 
   .btn:active {
-    background-color: #8882a3;
+    background-color: #07a178;
   }
 }
 
 .content {
+  width: 1280px;
+  margin: 0 auto;
+  padding-top: 60px;
+
   table {
+    table-layout: fixed;
+    width: 50%;
     margin: 0 auto;
     text-align: center;
   }
@@ -472,7 +483,7 @@ export default {
   }
 
   .col2 {
-    width: 400px;
+    // width: 400px;
   }
 }
 </style>

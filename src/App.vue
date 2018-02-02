@@ -82,13 +82,13 @@ export default {
     & > a {
       display: inline-block;
       padding: 15px;
-      &.router-link-active,&:hover {
+
+      &.router-link-active, &:hover {
         color: #008080;
         border-bottom: 2px solid #008080;
       }
     }
   }
-  
 }
 
 .footer {
@@ -96,12 +96,13 @@ export default {
   color: #fff;
   text-align: center;
   padding: 10px;
-  
+  margin-top: 20px;
+
   p {
-    width:1280px;
+    width: 1280px;
     height: 30px;
     line-height: 30px;
-    margin:0 auto;
+    margin: 0 auto;
   }
 }
 </style>
