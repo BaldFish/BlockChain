@@ -402,6 +402,7 @@ export default {
       });
     //获取交易数量
     this.transactionCounts = myContractInstance.attestNunber().c.toString();
+
     //获取最新10块交易信息
     var counts = this.transactionCounts - 1;
     for (var i = counts; i > counts - 10; i--) {
