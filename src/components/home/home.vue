@@ -6,15 +6,19 @@
         <div class="count_box">
           <ul class="count">
             <li>
-              当前区块高度：
+              <p>当前区块高度：</p>
               <span>{{blockNumbers}}</span>
             </li>
             <li>
-              记帐节点数：
-              <span>{{peerCount}}</span>
+              <p>最新出块时间：</p>
+              <span>{{blockNumbers}}</span>
             </li>
             <li>
-              交易数量：
+              <p>合作方数量：</p>
+              <span>{{partners}}</span>
+            </li>
+            <li>
+              <p>交易数量：</p>
               <span>{{transactionCounts}}</span>
             </li>
           </ul>
@@ -57,7 +61,7 @@
               <thead>
                 <tr>
                   <th style="width:15%">所属应用</th>
-                  <th style="width:50%">交易哈希</th>
+                  <th style="width:50%">存证哈希</th>
                   <th style="width:15%">存证信息</th>
                   <th style="width:20%">交易时间</th>
                 </tr>
@@ -65,9 +69,9 @@
               <tbody>
                 <tr v-for="(item,index) in transactions" :class="index%2?'even':''">
                   <td>{{item[0]}}</td>
-                  <td>{{item[3]}}</td>
-                  <td>{{item[2]}}</td>
                   <td>{{item[4]}}</td>
+                  <td>{{item[3]}}</td>
+                  <td>{{item[5]}}</td>
                 </tr>
               </tbody>
             </table>
@@ -94,20 +98,6 @@ web3.setProvider(new web3.providers.HttpProvider(reqURL));
 var abi = [
   {
     constant: false,
-    inputs: [
-      { name: "typ", type: "string" },
-      { name: "desc", type: "string" },
-      { name: "hash", type: "string" },
-      { name: "dtime", type: "string" }
-    ],
-    name: "attest",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
-    constant: false,
     inputs: [{ name: "newOwner", type: "address" }],
     name: "setOwner",
     outputs: [],
@@ -119,7 +109,7 @@ var abi = [
     constant: true,
     inputs: [],
     name: "partnerAttests",
-    outputs: [{ name: "", type: "uint256", value: "0" }],
+    outputs: [{ name: "", type: "uint256", value: "" }],
     payable: false,
     stateMutability: "view",
     type: "function"
@@ -141,7 +131,7 @@ var abi = [
     constant: true,
     inputs: [{ name: "typ", type: "string" }],
     name: "attestNunberByID",
-    outputs: [{ name: "", type: "uint256", value: "0" }],
+    outputs: [{ name: "", type: "uint256", value: "" }],
     payable: false,
     stateMutability: "view",
     type: "function"
@@ -150,16 +140,28 @@ var abi = [
     constant: true,
     inputs: [],
     name: "userNumber",
-    outputs: [{ name: "", type: "uint256", value: "0" }],
+    outputs: [{ name: "", type: "uint256", value: "" }],
     payable: false,
     stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: false,
+    inputs: [
+      { name: "recipient", type: "address" },
+      { name: "value", type: "uint256" }
+    ],
+    name: "sendToAddr",
+    outputs: [],
+    payable: true,
+    stateMutability: "payable",
     type: "function"
   },
   {
     constant: true,
     inputs: [{ name: "addr", type: "address" }],
     name: "balanceAt",
-    outputs: [{ name: "", type: "uint256", value: "0" }],
+    outputs: [{ name: "", type: "uint256", value: "" }],
     payable: false,
     stateMutability: "view",
     type: "function"
@@ -202,18 +204,9 @@ var abi = [
     constant: true,
     inputs: [],
     name: "attestNunber",
-    outputs: [{ name: "", type: "uint256", value: "0" }],
+    outputs: [{ name: "", type: "uint256", value: "" }],
     payable: false,
     stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: false,
-    inputs: [{ name: "recipient", type: "address" }],
-    name: "sendToAddr",
-    outputs: [],
-    payable: true,
-    stateMutability: "payable",
     type: "function"
   },
   {
@@ -224,6 +217,7 @@ var abi = [
       { name: "", type: "string", value: "" },
       { name: "", type: "string", value: "" },
       { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" },
       { name: "", type: "string", value: "" }
     ],
     payable: false,
@@ -231,10 +225,25 @@ var abi = [
     type: "function"
   },
   {
+    constant: false,
+    inputs: [
+      { name: "typ", type: "string" },
+      { name: "desc", type: "string" },
+      { name: "cont", type: "string" },
+      { name: "hash", type: "string" },
+      { name: "dtime", type: "string" }
+    ],
+    name: "attest",
+    outputs: [],
+    payable: false,
+    stateMutability: "nonpayable",
+    type: "function"
+  },
+  {
     constant: true,
     inputs: [],
     name: "partnerNumber",
-    outputs: [{ name: "", type: "uint256", value: "0" }],
+    outputs: [{ name: "", type: "uint256", value: "" }],
     payable: false,
     stateMutability: "view",
     type: "function"
@@ -243,7 +252,7 @@ var abi = [
     constant: true,
     inputs: [{ name: "addr", type: "address" }],
     name: "partnerAttestsByAddress",
-    outputs: [{ name: "", type: "uint256", value: "0" }],
+    outputs: [{ name: "", type: "uint256", value: "" }],
     payable: false,
     stateMutability: "view",
     type: "function"
@@ -276,11 +285,16 @@ var abi = [
     inputs: [{ name: "i", type: "uint256" }],
     name: "attestByIndex",
     outputs: [
-      { name: "", type: "address" },
-      { name: "", type: "string" },
-      { name: "", type: "string" },
-      { name: "", type: "string" },
-      { name: "", type: "string" }
+      {
+        name: "",
+        type: "address",
+        value: "0x698d090ee51828e42d823a40232dcb1f435e1879"
+      },
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" },
+      { name: "", type: "string", value: "" }
     ],
     payable: false,
     stateMutability: "view",
@@ -309,7 +323,7 @@ var abi = [
 ];
 var MyContract = web3.eth.contract(abi);
 var myContractInstance = MyContract.at(
-  "0xD656fd9Eb22a750198e353Ff0B74566e6EF5DB57"
+  "0x4773E6d0fc281049E2fb47F43798D72012F8cD24"
 );
 
 const ERR_OK = 0;
@@ -319,7 +333,7 @@ export default {
   data() {
     return {
       blockNumbers: "",
-      peerCount: "",
+      partners: "",
       transactionCounts: "5",
       blocks: [],
       qblocks: [],
@@ -402,7 +416,8 @@ export default {
       });
     //获取交易数量
     this.transactionCounts = myContractInstance.attestNunber().c.toString();
-
+    this.partners=myContractInstance.partnerNumber().c.toString()
+    console.log(this.partners)
     //获取最新10块交易信息
     var counts = this.transactionCounts - 1;
     for (var i = counts; i > counts - 10; i--) {
@@ -411,6 +426,7 @@ export default {
         return b[5] - a[5];
       });
     }
+    console.log(this.transactions)
     // 每隔15秒重新获取数据并更新DOM
     var that = this;
     setInterval(function() {
@@ -522,6 +538,10 @@ export default {
             flex: 1;
             text-align: center;
             color: #fafdfc;
+
+            p {
+              display: inline-block;
+            }
 
             span {
               color: #e2cf7a;

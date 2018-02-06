@@ -9,7 +9,7 @@
             <router-link to="/home">首页</router-link>
           </li>
           <li class="nav">
-            <router-link to="/search">筛查</router-link>
+            <router-link to="/search">搜索</router-link>
           </li>
         </ul>
       </div>
