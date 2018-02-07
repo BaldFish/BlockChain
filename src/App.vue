@@ -3,7 +3,7 @@
 
     <div class="head-wrap">
       <div class="head">
-        <h1 class="text">元链浏览器</h1>
+        <h1 class="text">元链搜索</h1>
         <ul>
           <li class="nav">
             <router-link to="/home">首页</router-link>

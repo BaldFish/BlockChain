@@ -5,7 +5,7 @@
       <select name="" class="search_select" v-model="searchType" @change="clearInput">
         <option value="block_height">区块高度</option>
         <option value="block_hash">区块哈希</option>
-        <option value="trade_hash">交易哈希</option>
+        <option value="trade_hash">存证哈希</option>
         <option value="account_balance">账户余额</option>
       </select>
       <input class="search_ipt" type="text" placeholder="请输入查询条件" v-model="search_content" @keyup.enter.prevent="search">

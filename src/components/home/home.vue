@@ -34,7 +34,7 @@
               <thead>
                 <tr>
                   <th style="width:15%">区块高度</th>
-                  <th style="width:50%">出块节点名称</th>
+                  <th style="width:50%">区块ID</th>
                   <th style="width:15%">交易笔数</th>
                   <th style="width:20%">出块时间</th>
                 </tr>
@@ -42,7 +42,10 @@
               <tbody>
                 <tr v-for="(item,index) in blocks" :class="index%2?'even':''">
                   <td>{{item.result.number}}</td>
-                  <td>{{item.result.miner}}</td>
+                  <td>
+                    <a href="/#/search/" target="_blank">{{item.result.hash}}</a>
+                    <!-- <router-link to="/search" target="_blank">{{item.result.hash}}</router-link> -->
+                  </td>
                   <td>{{item.result.transactions.length}}</td>
                   <td>{{item.result.timestamp}}</td>
                 </tr>
@@ -53,7 +56,7 @@
 
         <div class="block_box">
           <div class="clearfix block">
-            <h2 class="fl">最新交易</h2>
+            <h2 class="fl">最新存证</h2>
             <span class="fr"></span>
           </div>
           <div class="con_tb">
@@ -69,7 +72,10 @@
               <tbody>
                 <tr v-for="(item,index) in transactions" :class="index%2?'even':''">
                   <td>{{item[0]}}</td>
-                  <td>{{item[4]}}</td>
+                  <td>
+                    <a href="/#/search/" target="_blank">{{item[4]}}</a>
+                    <!-- <router-link to="/search" target="_blank">{{item[4]}}</router-link> -->
+                  </td>
                   <td>{{item[3]}}</td>
                   <td>{{item[5]}}</td>
                 </tr>
@@ -399,6 +405,7 @@ export default {
               this.blocks = blocks.sort(function(a, b) {
                 return b.id - a.id;
               });
+              // console.log(this.blocks);
             });
         }
         return res;
@@ -416,8 +423,7 @@ export default {
       });
     //获取交易数量
     this.transactionCounts = myContractInstance.attestNunber().c.toString();
-    this.partners=myContractInstance.partnerNumber().c.toString()
-    console.log(this.partners)
+    this.partners = myContractInstance.partnerNumber().c.toString();
     //获取最新10块交易信息
     var counts = this.transactionCounts - 1;
     for (var i = counts; i > counts - 10; i--) {
@@ -426,7 +432,7 @@ export default {
         return b[5] - a[5];
       });
     }
-    console.log(this.transactions)
+    // console.log(this.transactions);
     // 每隔15秒重新获取数据并更新DOM
     var that = this;
     setInterval(function() {
