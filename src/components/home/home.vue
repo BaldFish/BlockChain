@@ -11,7 +11,7 @@
             </li>
             <li>
               <p>最新出块时间：</p>
-              <span>{{blockNumbers}}</span>
+              <span>{{difftime}}</span>
             </li>
             <li>
               <p>合作方数量：</p>
@@ -86,7 +86,6 @@
 
       </div>
     </div>
-
   </div>
 </template>
 
@@ -338,8 +337,9 @@ export default {
 
   data() {
     return {
-      blockNumbers: "",
+      blockNumbers: "1",
       partners: "",
+      difftime: "",
       transactionCounts: "5",
       blocks: [],
       qblocks: [],
@@ -348,31 +348,6 @@ export default {
     };
   },
   mounted() {
-    // axios
-    //   .get("/api")
-    //   .then(response => {
-    //     var response = response.data;
-    //     if (response.errno === ERR_OK) {
-    //       response = response.data;
-    //       response.getNewBlock.forEach(item => {
-    //         item.number = parseInt(item.number, 16).toString();
-    //         item.timestamp = formatDate(
-    //           new Date(Number(item.timestamp)),
-    //           "yyyy-MM-dd hh:mm:ss"
-    //         );
-    //       });
-    //       response.cardList.forEach(item => {
-    //         item.timestamp = formatDate(
-    //           new Date(Number(item.timestamp)),
-    //           "yyyy-MM-dd hh:mm:ss"
-    //         );
-    //       });
-    //       this.apidata = response;
-    //     }
-    //   })
-    //   .catch(function(error) {
-    //     console.log(error);
-    //   });
     var blocks = [];
     var qblocks = [];
     var transactions = [];
@@ -386,6 +361,8 @@ export default {
       })
       .then(res => {
         this.blockNumbers = parseInt(res.data.result, 16);
+
+
         // 获取最新10个区块
         for (var i = this.blockNumbers; i > this.blockNumbers - 10; i--) {
           axios
@@ -405,10 +382,8 @@ export default {
               this.blocks = blocks.sort(function(a, b) {
                 return b.id - a.id;
               });
-              // console.log(this.blocks);
             });
         }
-        return res;
       });
     //获取记帐节点数
     axios
@@ -432,7 +407,6 @@ export default {
         return b[5] - a[5];
       });
     }
-    // console.log(this.transactions);
     // 每隔15秒重新获取数据并更新DOM
     var that = this;
     setInterval(function() {
@@ -514,7 +488,26 @@ export default {
     //       "0x8c6050ca48ed30f3223d450eef3c8e9548ee230c"
     //     )
   },
-  methods: {}
+  watch: {
+    blocks: function() {
+      if(this.blocks.length>1){
+        //方法2，可以直接在watch下写监听到变量发生变化后要运行的代码
+        // var dateNew=new Date(this.blocks[0].result.timestamp)
+        // var dateOld=new Date(this.blocks[1].result.timestamp)
+        // this.difftime=(dateNew-dateOld)/1000+"s"     
+        this.getdifftime()
+      }
+      
+    }
+  },
+  methods: {
+    getdifftime:function () {
+      var dateNew=new Date(this.blocks[0].result.timestamp)
+      var dateOld=new Date(this.blocks[1].result.timestamp)
+      this.difftime=(dateNew-dateOld)/1000+"s"
+      console.log((dateNew-dateOld)/1000+"s")
+    }
+  }
 };
 </script>
 
