@@ -270,7 +270,6 @@ export default {
   methods: {
     clearInput() {
       this.time = "";
-      this.search_content = "";
       this.getBlockHeight = {
         transactions: []
       };
@@ -289,6 +288,7 @@ export default {
       return time;
     },
     search() {
+      this.clearInput();
       this.time = this.$options.methods.getSeachTime();
       if (this.searchType === "block_height") {
         axios
@@ -299,37 +299,15 @@ export default {
             id: 1
           })
           .then(res => {
+            // this.search_content = "";
             res.data.result.number = parseInt(res.data.result.number);
             res.data.result.timestamp = formatDate(
               new Date(parseInt(res.data.result.timestamp, 16) * 1000),
               "yyyy-MM-dd hh:mm:ss"
             );
             this.getBlockHeight = res.data.result;
-            if (!this.getBlockHeight) {
-              this.getBlockHeight = {
-                number: "9999999999999999",
-                hash: "",
-                parentHash: "",
-                nonce: "",
-                sha3Uncles: "",
-                logsBloom: "",
-                transactionsRoot: "",
-                stateRoot: "",
-                miner: "",
-                difficulty: "",
-                totalDifficulty: "",
-                extraData: "",
-                size: "",
-                gasLimit: "",
-                gasUsed: "",
-                timestamp: "",
-                transactions: "",
-                uncles: ""
-              };
-            }
           });
       } else if (this.searchType === "block_hash") {
-        // console.log(this.search_content);
         axios
           .post(reqURL, {
             jsonrpc: "2.0",
@@ -338,34 +316,13 @@ export default {
             id: 2
           })
           .then(res => {
+            // this.search_content = "";
             res.data.result.number = parseInt(res.data.result.number);
             res.data.result.timestamp = formatDate(
               new Date(parseInt(res.data.result.timestamp, 16) * 1000),
               "yyyy-MM-dd hh:mm:ss"
             );
             this.getBlockHash = res.data.result;
-            if (!this.getBlockHash) {
-              this.getBlockHash = {
-                number: "",
-                hash: "",
-                parentHash: "",
-                nonce: "",
-                sha3Uncles: "",
-                logsBloom: "",
-                transactionsRoot: "",
-                stateRoot: "",
-                miner: "",
-                difficulty: "",
-                totalDifficulty: "",
-                extraData: "",
-                size: "",
-                gasLimit: "",
-                gasUsed: "",
-                timestamp: "",
-                transactions: "",
-                uncles: ""
-              };
-            }
           });
       } else if (this.searchType === "trade_hash") {
         axios
@@ -376,29 +333,13 @@ export default {
             id: 3
           })
           .then(res => {
+            // this.search_content = "";
             res.data.result.blockNumber = parseInt(res.data.result.blockNumber);
             // res.data.result.timestamp = formatDate(
             //   new Date(parseInt(res.data.result.timestamp, 16) * 1000),
             //   "yyyy-MM-dd hh:mm:ss"
             // );
             this.getTradeHash = res.data.result;
-            if (!this.getTradeHash) {
-              this.getTradeHash = {
-                hash: "",
-                nonce: "",
-                blockHash: "",
-                blockNumber: "",
-                timestamp: "",
-                transactionIndex: "",
-                partner: "",
-                from: "",
-                to: "",
-                value: "",
-                gas: "",
-                gasPrice: "",
-                input: ""
-              };
-            }
           });
       } else if (this.searchType === "account_balance") {
         axios
@@ -409,14 +350,9 @@ export default {
             id: 4
           })
           .then(res => {
+            // this.search_content = "";
             this.getAccountBalance.result = parseInt(res.data.result);
             this.getAccountBalance.miner = this.search_content;
-            if (!this.getAccountBalance) {
-              this.getAccountBalance = {
-                miner: "",
-                result: ""
-              };
-            }
           });
       }
     }

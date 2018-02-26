@@ -9,7 +9,6 @@
       </select>
       <input class="search_ipt" type="text" placeholder="请输入查询条件" v-model="search_content" @keyup.enter.prevent="search">
      <button class="btn" @click.prevent="search">搜索</button>
-     <h1><a href="/#/seach/" style="color:'red'">111111111</a></h1> 
     </div>
 
     <div class="container">
@@ -694,7 +693,7 @@ export default {
   box-sizing: border-box;
   margin: 0 auto;
   width: 1280px;
-   
+ 
   .search_box {
     box-sizing: border-box;
     text-align: center;

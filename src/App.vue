@@ -3,21 +3,22 @@
 
     <div class="head-wrap">
       <div class="head">
-        <h1 class="text">元链搜索</h1>
+        <!-- <h1 class="text">元链搜索</h1> -->
+        <router-link to="/home"><h1 class="text">元链搜索</h1></router-link>
         <!-- <ul>
           <li class="nav">
-            <router-link to="/home"></router-link>
+            <router-link to="/home">主页</router-link>
           </li>
           <li class="nav">
-            <router-link to="/search"></router-link>
+            <router-link to="/search">搜索</router-link>
           </li>
         </ul> -->
       </div>
     </div>
 
-    <keep-alive>
+    <!-- <keep-alive> -->
       <router-view class="main"></router-view>
-    </keep-alive>
+    <!-- </keep-alive> -->
 
     <div class="footer">
       <p>©2018 元征区块链技术研究院.京ICP备88888888号-8</p>
