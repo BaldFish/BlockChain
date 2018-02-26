@@ -1,5 +1,17 @@
 <template>
   <div class="home">
+    <div class="search_box">
+      <select name="" class="search_select" v-model="searchType" @change="clearInput">
+        <option value="block_height">区块高度</option>
+        <option value="block_hash">区块哈希</option>
+        <option value="trade_hash">存证哈希</option>
+        <option value="account_balance">账户余额</option>
+      </select>
+      <input class="search_ipt" type="text" placeholder="请输入查询条件" v-model="search_content" @keyup.enter.prevent="search">
+     <button class="btn" @click.prevent="search">搜索</button>
+     <h1><a href="/#/seach/" style="color:'red'">111111111</a></h1> 
+    </div>
+
     <div class="container">
       <div class="container_box">
 
@@ -43,7 +55,7 @@
                 <tr v-for="(item,index) in blocks" :class="index%2?'even':''">
                   <td>{{item.result.number}}</td>
                   <td>
-                    <a href="/#/search/" target="_blank">{{item.result.hash}}</a>
+                    <a href="/#/search/">{{item.result.hash}}</a>
                     <!-- <router-link to="/search" target="_blank">{{item.result.hash}}</router-link> -->
                   </td>
                   <td>{{item.result.transactions.length}}</td>
@@ -334,9 +346,23 @@ var myContractInstance = MyContract.at(
 const ERR_OK = 0;
 export default {
   name: "home",
-
   data() {
     return {
+      time: "",
+      searchType: "block_height",
+      search_content: "",
+      getBlockHeight: {
+        transactions: []
+      },
+      getBlockHash: {
+        transactions: []
+      },
+      getTradeHash: {},
+      getAccountBalance: {
+        miner: "",
+        result: ""
+      },
+
       blockNumbers: "1",
       partners: "",
       difftime: "",
@@ -361,7 +387,6 @@ export default {
       })
       .then(res => {
         this.blockNumbers = parseInt(res.data.result, 16);
-
 
         // 获取最新10个区块
         for (var i = this.blockNumbers; i > this.blockNumbers - 10; i--) {
@@ -490,22 +515,175 @@ export default {
   },
   watch: {
     blocks: function() {
-      if(this.blocks.length>1){
+      if (this.blocks.length > 1) {
         //方法2，可以直接在watch下写监听到变量发生变化后要运行的代码
         // var dateNew=new Date(this.blocks[0].result.timestamp)
         // var dateOld=new Date(this.blocks[1].result.timestamp)
-        // this.difftime=(dateNew-dateOld)/1000+"s"     
-        this.getdifftime()
+        // this.difftime=(dateNew-dateOld)/1000+"s"
+        this.getdifftime();
       }
-      
     }
   },
   methods: {
-    getdifftime:function () {
-      var dateNew=new Date(this.blocks[0].result.timestamp)
-      var dateOld=new Date(this.blocks[1].result.timestamp)
-      this.difftime=(dateNew-dateOld)/1000+"s"
-      console.log((dateNew-dateOld)/1000+"s")
+    getdifftime: function() {
+      var dateNew = new Date(this.blocks[0].result.timestamp);
+      var dateOld = new Date(this.blocks[1].result.timestamp);
+      this.difftime = (dateNew - dateOld) / 1000 + "s";
+      console.log((dateNew - dateOld) / 1000 + "s");
+    },
+
+    clearInput() {
+      this.time = "";
+      this.search_content = "";
+      this.getBlockHeight = {
+        transactions: []
+      };
+      this.getBlockHash = {
+        transactions: []
+      };
+      this.getTradeHash = {};
+      this.getAccountBalance = {
+        miner: "",
+        result: ""
+      };
+    },
+    getSeachTime() {
+      var time = new Date();
+      time = formatDate(time, "yyyy-MM-dd hh:mm:ss");
+      return time;
+    },
+    search() {
+      // window.location.href='/#/search/'
+      this.time = this.$options.methods.getSeachTime();
+      if (this.searchType === "block_height") {
+        axios
+          .post(reqURL, {
+            jsonrpc: "2.0",
+            method: "eth_getBlockByNumber",
+            params: ["0x" + parseInt(this.search_content).toString(16), true],
+            id: 1
+          })
+          .then(res => {
+            res.data.result.number = parseInt(res.data.result.number);
+            res.data.result.timestamp = formatDate(
+              new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+              "yyyy-MM-dd hh:mm:ss"
+            );
+            this.getBlockHeight = res.data.result;
+            if (!this.getBlockHeight) {
+              this.getBlockHeight = {
+                number: "9999999999999999",
+                hash: "",
+                parentHash: "",
+                nonce: "",
+                sha3Uncles: "",
+                logsBloom: "",
+                transactionsRoot: "",
+                stateRoot: "",
+                miner: "",
+                difficulty: "",
+                totalDifficulty: "",
+                extraData: "",
+                size: "",
+                gasLimit: "",
+                gasUsed: "",
+                timestamp: "",
+                transactions: "",
+                uncles: ""
+              };
+            }
+          });
+      } else if (this.searchType === "block_hash") {
+        // console.log(this.search_content);
+        axios
+          .post(reqURL, {
+            jsonrpc: "2.0",
+            method: "eth_getBlockByHash",
+            params: [this.search_content, true],
+            id: 2
+          })
+          .then(res => {
+            res.data.result.number = parseInt(res.data.result.number);
+            res.data.result.timestamp = formatDate(
+              new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+              "yyyy-MM-dd hh:mm:ss"
+            );
+            this.getBlockHash = res.data.result;
+            if (!this.getBlockHash) {
+              this.getBlockHash = {
+                number: "",
+                hash: "",
+                parentHash: "",
+                nonce: "",
+                sha3Uncles: "",
+                logsBloom: "",
+                transactionsRoot: "",
+                stateRoot: "",
+                miner: "",
+                difficulty: "",
+                totalDifficulty: "",
+                extraData: "",
+                size: "",
+                gasLimit: "",
+                gasUsed: "",
+                timestamp: "",
+                transactions: "",
+                uncles: ""
+              };
+            }
+          });
+      } else if (this.searchType === "trade_hash") {
+        axios
+          .post(reqURL, {
+            jsonrpc: "2.0",
+            method: "eth_getTransactionByHash",
+            params: [this.search_content],
+            id: 3
+          })
+          .then(res => {
+            res.data.result.blockNumber = parseInt(res.data.result.blockNumber);
+            // res.data.result.timestamp = formatDate(
+            //   new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+            //   "yyyy-MM-dd hh:mm:ss"
+            // );
+            this.getTradeHash = res.data.result;
+            if (!this.getTradeHash) {
+              this.getTradeHash = {
+                hash: "",
+                nonce: "",
+                blockHash: "",
+                blockNumber: "",
+                timestamp: "",
+                transactionIndex: "",
+                partner: "",
+                from: "",
+                to: "",
+                value: "",
+                gas: "",
+                gasPrice: "",
+                input: ""
+              };
+            }
+          });
+      } else if (this.searchType === "account_balance") {
+        axios
+          .post(reqURL, {
+            jsonrpc: "2.0",
+            method: "eth_getBalance",
+            params: [this.search_content, "latest"],
+            id: 4
+          })
+          .then(res => {
+            this.getAccountBalance.result = parseInt(res.data.result);
+            this.getAccountBalance.miner = this.search_content;
+            if (!this.getAccountBalance) {
+              this.getAccountBalance = {
+                miner: "",
+                result: ""
+              };
+            }
+          });
+      }
     }
   }
 };
@@ -515,8 +693,43 @@ export default {
 .home {
   box-sizing: border-box;
   margin: 0 auto;
-  padding: 80px 20px 20px 20px;
   width: 1280px;
+   
+  .search_box {
+    box-sizing: border-box;
+    text-align: center;
+    padding: 160px 20px;
+    width: 100%;
+    margin: 0 auto;
+    font-size: 0;
+
+    .search_ipt, .search_select, .btn {
+      outline: none;
+      box-sizing: border-box;
+      display: inline-block;
+      border-radius: 5px;
+      height: 60px;
+      line-height: 60px;
+      background: #0dad7e;
+      vertical-align: top;
+      cursor: pointer;
+      border: none;
+      font-size: 24px;
+      color: #ffffff;
+      margin: 0 1px;
+    }
+
+    .search_ipt {
+      cursor: auto;
+      padding: 0 10px;
+      width: 40%;
+      color: blue;
+    }
+
+    .btn:active {
+      background-color: #07a178;
+    }
+  }
 
   .container {
     width: 100%;
@@ -551,14 +764,12 @@ export default {
       }
 
       .block_box {
-        // border: 1px solid #bfc0c1;
         .block {
           border-bottom: 1px solid #bfc0c1;
           padding-top: 20px;
           margin-bottom: 10px;
 
           h2 {
-            // padding: 10px 20px;
             display: inline-block;
             color: #22b398;
             font-size: 24px;
@@ -575,7 +786,6 @@ export default {
         }
 
         .con_tb {
-          // padding: 10px 20px;
           table {
             text-align: center;
             width: 100%;

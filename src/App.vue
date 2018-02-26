@@ -4,14 +4,14 @@
     <div class="head-wrap">
       <div class="head">
         <h1 class="text">元链搜索</h1>
-        <ul>
+        <!-- <ul>
           <li class="nav">
-            <router-link to="/home">首页</router-link>
+            <router-link to="/home"></router-link>
           </li>
           <li class="nav">
-            <router-link to="/search">搜索</router-link>
+            <router-link to="/search"></router-link>
           </li>
-        </ul>
+        </ul> -->
       </div>
     </div>
 
@@ -54,7 +54,6 @@ export default {
 }
 
 .head-wrap {
-  // height: 60px;
   position: fixed;
   width: 100%;
   background-color: #f7f8f8;
@@ -63,6 +62,8 @@ export default {
   .head {
     width: 1280px;
     margin: 5px auto;
+    height: 80px;
+    line-height: 80px;
   }
 
   .text, ul, .nav {
@@ -71,6 +72,7 @@ export default {
 
   .text {
     background: url('./components/home/star24_on@2x.png') no-repeat left top;
+    background-position:0%
     padding-left: 40px;
     margin-right: 60px;
     font-size: 20px;
@@ -84,8 +86,8 @@ export default {
       padding: 15px;
 
       &.router-link-active, &:hover {
-        color: #008080;
-        border-bottom: 2px solid #008080;
+        // color: #008080;
+        // border-bottom: 2px solid #008080;
       }
     }
   }

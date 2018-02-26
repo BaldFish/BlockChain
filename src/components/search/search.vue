@@ -227,7 +227,6 @@ export default {
       time: "",
       searchType: "block_height",
       search_content: "",
-      apidata: {},
       getBlockHeight: {
         transactions: []
       },
@@ -434,7 +433,7 @@ export default {
 .search_box {
   box-sizing: border-box;
   text-align: center;
-  padding: 80px 20px 20px;
+  padding: 160px 20px;
   width: 100%;
   margin: 0 auto;
   font-size: 0;
@@ -444,13 +443,13 @@ export default {
     box-sizing: border-box;
     display: inline-block;
     border-radius: 5px;
-    height: 40px;
-    line-height: 40px;
+    height: 60px;
+    line-height: 60px;
     background: #0dad7e;
     vertical-align: top;
     cursor: pointer;
     border: none;
-    font-size: 16px;
+    font-size: 24px;
     color: #ffffff;
     margin: 0 1px;
   }
@@ -469,7 +468,6 @@ export default {
 .content {
   width: 100%;
   margin: 0 auto;
-  padding-top: 60px;
 
   table {
     table-layout: fixed;
