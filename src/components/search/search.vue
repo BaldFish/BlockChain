@@ -1,16 +1,6 @@
 <template>
   <div class="search">
 
-    <div class="search_box">
-      <select name="" class="search_select" v-model="searchType" @change="clearInput">
-        <option value="block_height">区块高度</option>
-        <option value="block_hash">区块哈希</option>
-        <option value="trade_hash">存证哈希</option>
-        <option value="account_balance">账户余额</option>
-      </select>
-      <input class="search_ipt" type="text" placeholder="请输入查询条件" v-model="search_content" @keyup.enter.prevent="search">
-      <button class="btn" @click.prevent="search">搜索</button>
-    </div>
     <div class="content">
       <table v-if="searchType==='block_height'">
         <caption>
@@ -366,40 +356,6 @@ export default {
   margin: 0 auto;
 }
 
-.search_box {
-  box-sizing: border-box;
-  text-align: center;
-  padding: 160px 20px;
-  width: 100%;
-  margin: 0 auto;
-  font-size: 0;
-
-  .search_ipt, .search_select, .btn {
-    outline: none;
-    box-sizing: border-box;
-    display: inline-block;
-    border-radius: 5px;
-    height: 60px;
-    line-height: 60px;
-    background: #0dad7e;
-    vertical-align: top;
-    cursor: pointer;
-    border: none;
-    font-size: 24px;
-    color: #ffffff;
-    margin: 0 1px;
-  }
-
-  .search_ipt {
-    cursor: auto;
-    padding: 0 10px;
-    width: 40%;
-  }
-
-  .btn:active {
-    background-color: #07a178;
-  }
-}
 
 .content {
   width: 100%;
