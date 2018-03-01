@@ -71,7 +71,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item,index) in blocks" :class="index%2?'even':''">
+                  <tr v-for="(item,index) in blocks" :class="index%2?'even':''" :key="item.result.number">
                     <td>{{item.result.number}}</td>
                     <td>
                       {{item.result.hash}}
@@ -986,7 +986,7 @@ export default {
     cursor: auto;
     padding: 0 10px;
     width: 40%;
-    color: blue;
+    color: #e2cf7a
   }
 
   .btn:active {
@@ -1130,8 +1130,10 @@ export default {
     padding: 5px;
     margin: 5px;
     white-space: pre-wrap;
+    
     span{
-      word-wrap:break-word; overflow:hidden;
+      word-wrap:break-word; 
+      overflow:hidden;
     }
     .string {
       color: green;
