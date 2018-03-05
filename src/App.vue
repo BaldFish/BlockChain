@@ -3,21 +3,13 @@
 
     <div class="head-wrap">
       <div class="head">
-        <a href="/">
+        <a @click="myhome" href="/">
           <h1 class="text">元链搜索</h1>
         </a>
-        <!-- <ul>
-          <li class="nav">
-            <router-link to="/home">主页</router-link>
-          </li>
-          <li class="nav">
-            <router-link to="/search">搜索</router-link>
-          </li>
-        </ul> -->
       </div>
     </div>
 
-    <div class="search_box">
+    <div class="search_box" v-if="tab_seen">
       <select name="" class="search_select" v-model="searchType" @change="clearInput">
         <option value="block_height">区块高度</option>
         <option value="block_hash">区块哈希</option>
@@ -25,13 +17,11 @@
         <option value="account_balance">账户余额</option>
       </select>
       <input class="search_ipt" type="text" placeholder="请输入查询条件" v-model="search_content" @keyup.enter.prevent="search">
-      <!-- <router-link to="/search"><button class="btn" @click.prevent="search">搜索</button></router-link> -->
       <button class="btn" @click.prevent="search">搜索</button>
-      <!-- <router-link to="/search" class="btn" @click.prevent="search">搜索</router-link> -->
     </div>
-    <div class="home">
+    <div class="home" v-if="tab_seen">
 
-      <div class="container" v-if="seen">
+      <div class="container" v-if="home_seen">
         <div class="container_box">
 
           <div class="count_box">
@@ -75,7 +65,6 @@
                     <td>{{item.result.number}}</td>
                     <td>
                       {{item.result.hash}}
-                      <!-- <a href="/#/search/" target="_blank">{{item.result.hash}}</a> -->
                     </td>
                     <td>{{item.result.transactions.length}}</td>
                     <td>{{item.result.timestamp}}</td>
@@ -102,13 +91,11 @@
                 </thead>
                 <tbody>
                   <tr v-for="(item,index) in transactions" :class="index%2?'even':''">
-                    <td >
+                    <td>
                       <img class="t1" src="../src/golo.jpg" alt="">
                     </td>
-                    <!-- <td>{{item[0]}}</td> -->
-                    <td>
+                    <td @click="myinfo" style="cursor:pointer">
                       {{item[4]}}
-                      <!-- <a href="/#/search/" target="_blank">{{item[4]}}</a> -->
                     </td>
                     <td>{{item[3]}}</td>
                     <td>{{item[5]}}</td>
@@ -120,7 +107,7 @@
 
         </div>
       </div>
-      <div class="content" v-if="!seen">
+      <div class="content" v-if="!home_seen">
         <p>查询时间：{{time}}</p>
         <!-- <table v-if="searchType==='block_height'">
           <caption>
@@ -318,13 +305,44 @@
           </tr>
 
         </table> -->
-        <div id="pre" ref="result" v-html="d">
+        <div id="pre" ref="result" v-html="search_data">
         </div>
       </div>
+
     </div>
-    <!-- <keep-alive> -->
-    <!-- <router-view class="main"></router-view> -->
-    <!-- </keep-alive> -->
+
+    <div class="click" v-if="!tab_seen">
+      <div class="tradeHash">
+        <span>&gt;</span>
+        <span>存证哈希：</span>
+        <span class="targetParam"></span>
+      </div>
+      <div class="tradeMesg-box">
+
+        <div class="tradeMesg-title">存证信息</div>
+
+        <div class="business-infoboxBg">
+          <div class="business-infobox">
+            <div class="ascription-titlebox">
+              <span class="ascription-title">所属应用信息</span>
+              <img src="./golo.jpg" class="ascription-img">
+              <div class="ascription-name">轱辘车联</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pictureLayer">
+          <div class="tradeMesg-row clear-fix">
+            <div class="certified-row">
+              <span class="tradeMesg-name">交易发起方：</span>
+              <span class="tradeMesg-content source_address"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
 
     <div class="footer">
       <p>©2018 元征区块链技术研究院.京ICP备88888888号-8</p>
@@ -582,8 +600,9 @@ export default {
   name: "app",
   data() {
     return {
-      d: "",
-      seen: true,
+      search_data: "",
+      home_seen: true,
+      tab_seen: true,
       time: "",
       searchType: "block_height",
       search_content: "",
@@ -655,10 +674,11 @@ export default {
       .then(res => {
         this.peerCount = parseInt(res.data.result, 16) + 1;
       });
-    //获取交易数量
+    //获取存证数量
     this.transactionCounts = myContractInstance.attestNunber().c.toString();
     this.partners = myContractInstance.partnerNumber().c.toString();
-    //获取最新10块交易信息
+    //获取最新10个存证信息
+    console.log(myContractInstance.acquireVerify("1"));
     var counts = this.transactionCounts - 1;
     for (var i = counts; i > counts - 10; i--) {
       transactions.push(myContractInstance.attestByIndex(i));
@@ -709,7 +729,7 @@ export default {
         .then(res => {
           that.peerCount = parseInt(res.data.result, 16) + 1;
         });
-      //获取最新交易信息
+      //获取最新存证信息
       var newTransactionCounts = myContractInstance.attestNunber().c.toString();
       var newCounts = newTransactionCounts - that.transactionCounts;
       if (newCounts === 0) {
@@ -767,7 +787,7 @@ export default {
     },
 
     clearInput() {
-      this.d=""
+      this.d = "";
       this.time = "";
       this.getBlockHeight = {
         transactions: []
@@ -787,7 +807,7 @@ export default {
       return time;
     },
     search() {
-      this.seen = false;
+      this.home_seen = false;
       this.clearInput();
       this.time = this.$options.methods.getSeachTime();
       if (this.searchType === "block_height") {
@@ -799,20 +819,16 @@ export default {
             id: 1
           })
           .then(res => {
-            // this.search_content = "";
             res.data.result.number = parseInt(res.data.result.number);
             res.data.result.timestamp = formatDate(
               new Date(parseInt(res.data.result.timestamp, 16) * 1000),
               "yyyy-MM-dd hh:mm:ss"
             );
-            
+
             this.getBlockHeight = res.data.result;
-            this.d = this.$options.methods.syntaxHighlight(
+            this.search_data = this.$options.methods.syntaxHighlight(
               this.getBlockHeight
             );
-            // var oPre=document.getElementById("pre")
-            // oPre.appendChild(this.d)
-            // console.log(oPre)
           });
       } else if (this.searchType === "block_hash") {
         axios
@@ -823,14 +839,13 @@ export default {
             id: 2
           })
           .then(res => {
-            // this.search_content = "";
             res.data.result.number = parseInt(res.data.result.number);
             res.data.result.timestamp = formatDate(
               new Date(parseInt(res.data.result.timestamp, 16) * 1000),
               "yyyy-MM-dd hh:mm:ss"
             );
             this.getBlockHash = res.data.result;
-            this.d = this.$options.methods.syntaxHighlight(
+            this.search_data = this.$options.methods.syntaxHighlight(
               this.getBlockHash
             );
           });
@@ -843,14 +858,13 @@ export default {
             id: 3
           })
           .then(res => {
-            // this.search_content = "";
             res.data.result.blockNumber = parseInt(res.data.result.blockNumber);
             // res.data.result.timestamp = formatDate(
             //   new Date(parseInt(res.data.result.timestamp, 16) * 1000),
             //   "yyyy-MM-dd hh:mm:ss"
             // );
             this.getTradeHash = res.data.result;
-            this.d = this.$options.methods.syntaxHighlight(
+            this.search_data = this.$options.methods.syntaxHighlight(
               this.getTradeHash
             );
           });
@@ -863,10 +877,9 @@ export default {
             id: 4
           })
           .then(res => {
-            // this.search_content = "";
             this.getAccountBalance.result = parseInt(res.data.result);
             this.getAccountBalance.miner = this.search_content;
-            this.d = this.$options.methods.syntaxHighlight(
+            this.search_data = this.$options.methods.syntaxHighlight(
               this.getAccountBalance
             );
           });
@@ -895,9 +908,21 @@ export default {
           } else if (/null/.test(match)) {
             cls = "null";
           }
-          return '<span style="word-wrap:break-word;overflow:hidden;" class="' + cls + '">' + match + "</span>";
+          return (
+            '<span style="word-wrap:break-word;overflow:hidden;" class="' +
+            cls +
+            '">' +
+            match +
+            "</span>"
+          );
         }
       );
+    },
+    myhome: function() {
+      this.tab_seen = true;
+    },
+    myinfo: function() {
+      this.tab_seen = false;
     }
   },
   components: {}
@@ -945,8 +970,8 @@ export default {
         padding: 15px;
 
         &.router-link-active, &:hover {
-          // color: #008080;
-          // border-bottom: 2px solid #008080;
+          color: #008080;
+          border-bottom: 2px solid #008080;
         }
       }
     }
@@ -957,7 +982,7 @@ export default {
   box-sizing: border-box;
   text-align: center;
   padding: 120px 20px 140px;
-  width: 100%;
+  min-width: 1280px;
   margin: 0 auto;
   font-size: 0;
 
@@ -986,7 +1011,7 @@ export default {
     cursor: auto;
     padding: 0 10px;
     width: 40%;
-    color: #e2cf7a
+    color: #e2cf7a;
   }
 
   .btn:active {
@@ -1079,12 +1104,12 @@ export default {
               overflow: hidden;
               white-space: nowrap;
               text-overflow: ellipsis;
-              vertical-align middle
+              vertical-align: middle;
             }
-            .t1{
-              width 70px
-              height 40px
-              // vertical-align middle
+
+            .t1 {
+              width: 70px;
+              height: 40px;
             }
           }
         }
@@ -1126,15 +1151,21 @@ export default {
       }
     }
   }
+
   #pre {
     padding: 5px;
     margin: 5px;
     white-space: pre-wrap;
-    
-    span{
-      word-wrap:break-word; 
-      overflow:hidden;
+
+    span {
+      word-wrap: break-word;
+      overflow: hidden;
+
+      .string {
+        color: green;
+      }
     }
+
     .string {
       color: green;
     }
@@ -1157,9 +1188,79 @@ export default {
   }
 }
 
-// .main {
-// flex: 1;
-// }
+.click {
+  flex: 1;
+  box-sizing: border-box;
+  margin: 0 auto;
+  width: 1280px;
+  padding: 100px 20px;
+  background: #fff;
+
+  .tradeHash {
+    color: #22b398;
+    font-size: 18px;
+    width: 1280px;
+    padding-bottom: 30px;
+
+    span:first-child {
+      font-size: 22px;
+      padding-right: 10px;
+    }
+  }
+
+  .tradeMesg-box {
+    background: #fff;
+    padding: 60px;
+    position: relative;
+
+    .tradeMesg-title {
+      background: #d1d1d1;
+      color: #535353;
+      padding: 12px;
+      margin-bottom: 3px;
+      font-size: 16px;
+    }
+
+    .business-infoboxBg {
+      position: absolute;
+      background: #fff;
+      right: 60px;
+      top: 60px;
+      z-index: 1;
+
+      .business-infobox {
+        width: 204px;
+        height: 163px;
+        border: 2px solid #33bea5;
+        margin: 0 15px 15px;
+
+        .ascription-titlebox {
+          width: 140px;
+          margin: 0 auto;
+          background: url('./business.png') no-repeat;
+          text-align: center;
+
+          .ascription-title {
+            display: block;
+            font-size: 16px;
+            color: #fff;
+            padding-top: 11px;
+            padding-bottom: 9px;
+          }
+        }
+      }
+    }
+
+    .pictureLayer {
+      .tradeMesg-row {
+        border-bottom: 1px solid #f0f0f0;
+        padding-top: 20px;
+        padding-bottom: 24px;
+      }
+    }
+  }
+}
+
 .footer {
   background-color: #3a3a3a;
   color: #fff;
