@@ -9,19 +9,20 @@
       </div>
     </div>
 
-    <div class="search_box" v-if="tab_seen">
-      <select name="" class="search_select" v-model="searchType" @change="clearInput">
+    <div class="search_box" v-if="search_seen">
+      <select name="" class="search_select" v-model="searchType">
         <option value="block_height">区块高度</option>
         <option value="block_hash">区块哈希</option>
-        <!-- <option value="trade_hash">存证哈希</option> -->
+        <option value="trade_hash">交易哈希</option>
+        <option value="save_hash">存证哈希</option>
         <option value="account_balance">账户余额</option>
       </select>
       <input class="search_ipt" type="text" placeholder="请输入查询条件" v-model="search_content" @keyup.enter.prevent="search">
       <button class="btn" @click.prevent="search">搜索</button>
     </div>
-    <div class="home" v-if="tab_seen">
+    <div class="home" v-if="home_seen">
 
-      <div class="container" v-if="home_seen">
+      <div class="container">
         <div class="container_box">
 
           <div class="count_box">
@@ -41,6 +42,10 @@
               <li>
                 <p>交易数量：</p>
                 <span>{{transactionCounts}}</span>
+              </li>
+              <li>
+                <p>存证数量：</p>
+                <span>{{saveCounts}}</span>
               </li>
             </ul>
           </div>
@@ -63,7 +68,7 @@
                 <tbody>
                   <tr v-for="(item,index) in blocks" :class="index%2?'even':''" :key="item.result.number">
                     <td>{{item.result.number}}</td>
-                    <td>
+                    <td @click="clickNumber($event)" style="cursor:pointer">
                       {{item.result.hash}}
                     </td>
                     <td>{{item.result.transactions.length}}</td>
@@ -85,20 +90,20 @@
                   <tr>
                     <th style="width:15%">所属应用</th>
                     <th style="width:50%">存证哈希</th>
-                    <th style="width:15%">存证信息</th>
+                    <th style="width:15%">存证类型</th>
                     <th style="width:20%">交易时间</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item,index) in transactions" :class="index%2?'even':''">
+                  <tr v-for="(item,index) in saves" :class="index%2?'even':''">
                     <td>
                       <img class="t1" src="../src/golo.jpg" alt="">
                     </td>
-                    <td @click="myinfo" style="cursor:pointer">
-                      {{item[4]}}
+                    <td @click="clickSave($event)" style="cursor:pointer">
+                      {{item[3]}}
                     </td>
-                    <td>{{item[3]}}</td>
-                    <td>{{item[5]}}</td>
+                    <td>{{item[1]}}</td>
+                    <td>{{item[4]}}</td>
                   </tr>
                 </tbody>
               </table>
@@ -107,215 +112,33 @@
 
         </div>
       </div>
-      <div class="content" v-if="!home_seen">
-        <p>查询时间：{{time}}</p>
-        <!-- <table v-if="searchType==='block_height'">
-          <caption>
-            <p>查询时间：{{time}}</p>
-          </caption>
-          <colgroup>
-            <col class="col1">
-            <col class="col2">
-          </colgroup>
-          <tr>
-            <th colspan="2">区块：{{getBlockHeight.number}}</th>
-          </tr>
-          <tr>
-            <td>交易笔数：</td>
-            <td>{{getBlockHeight.transactions.length}}</td>
-          </tr>
-          <tr>
-            <td>存证记录个数：</td>
-            <td>{{getBlockHeight.transactions.length}}</td>
-          </tr>
-          <tr>
-            <td>高度：</td>
-            <td>{{getBlockHeight.number}}</td>
-          </tr>
-          <tr>
-            <td>区块生成时间：</td>
-            <td>{{getBlockHeight.timestamp}}</td>
-          </tr>
-          <tr>
-            <td>版本：</td>
-            <td>1.0</td>
-          </tr>
-          <tr>
-            <td>哈希值：</td>
-            <td>{{getBlockHeight.hash}}</td>
-          </tr>
-          <tr>
-            <td>上一区块：</td>
-            <td>{{getBlockHeight.parentHash}}</td>
-          </tr>
-        </table>
-
-        <table v-else-if="searchType==='block_hash'">
-          <caption>
-            <p>查询时间：{{time}}</p>
-          </caption>
-          <colgroup>
-            <col class="col1">
-            <col class="col2">
-          </colgroup>
-          <tr>
-            <th colspan="2">区块：{{getBlockHash.number}}</th>
-          </tr>
-          <tr>
-            <td>交易笔数：</td>
-            <td>{{getBlockHash.transactions.length}}</td>
-          </tr>
-          <tr>
-            <td>存证记录个数：</td>
-            <td>{{getBlockHash.transactions.length}}</td>
-          </tr>
-          <tr>
-            <td>高度：</td>
-            <td>{{getBlockHash.number}}</td>
-          </tr>
-          <tr>
-            <td>区块生成时间：</td>
-            <td>{{getBlockHash.timestamp}}</td>
-          </tr>
-          <tr>
-            <td>版本：</td>
-            <td>1.0</td>
-          </tr>
-          <tr>
-            <td>哈希值：</td>
-            <td>{{getBlockHash.hash}}</td>
-          </tr>
-          <tr>
-            <td>上一区块：</td>
-            <td>{{getBlockHash.parentHash}}</td>
-          </tr>
-        </table>
-
-        <table v-else-if="searchType==='trade_hash'">
-          <caption>
-            <p>鉴证时间：{{time}}</p>
-          </caption>
-          <colgroup>
-            <col class="col1">
-            <col class="col2">
-          </colgroup>
-          <tr>
-            <th colspan="2">区块链交易鉴证信息</th>
-          </tr>
-          <tr>
-            <td>交易哈希：</td>
-            <td>{{getTradeHash.hash}}</td>
-          </tr>
-          <tr>
-            <td>交易时间：</td>
-            <td>{{getTradeHash.timestamp}}</td>
-          </tr>
-          <tr>
-            <td>投保时间：</td>
-            <td>{{getTradeHash.timestamp}}</td>
-          </tr>
-          <tr>
-            <td>承保公司：</td>
-            <td>{{getTradeHash.timestamp}}</td>
-          </tr>
-          <tr>
-            <td>保险类型：</td>
-            <td>{{getTradeHash.hash}}</td>
-          </tr>
-          <tr>
-            <td>保险单号：</td>
-            <td>{{getTradeHash.hash}}</td>
-          </tr>
-          <tr>
-            <td>保险期间：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>被保险人：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>证件类型：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>证件号码：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>承保险种：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>车牌号：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>车主：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>车辆型号：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>初登日期：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>车辆识别代号：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>发动机号；</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>机动车种类：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>投保渠道：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>销售机构：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-          <tr>
-            <td>营业员：</td>
-            <td>{{getTradeHash.parentHash}}</td>
-          </tr>
-        </table>
-
-        <table v-else-if="searchType==='account_balance'">
-          <caption>
-            <p>查询时间：{{time}}</p>
-          </caption>
-          <colgroup>
-            <col class="col1">
-            <col class="col2">
-          </colgroup>
-          <tr>
-            <th colspan="2">账户：{{getAccountBalance.miner}}</th>
-          </tr>
-          <tr>
-            <td>余额：</td>
-            <td>{{getAccountBalance.result}}</td>
-          </tr>
-
-        </table> -->
-        <div id="pre" ref="result" v-html="search_data">
-        </div>
-      </div>
 
     </div>
+    <div class="content" v-if="search_infoseen">
+      <p>查询时间：{{time}}</p>
+      <div id="pre" ref="result" v-html="search_data">
+      </div>
+    </div>
+    <div class="click" v-if="click_block">
+      <div class="tradeHash">
+        <span>&gt;</span>
+        <span>区块哈希：</span>
+        <span class="targetParam">{{click_numberinfo.result.hash}}</span>
+      </div>
+      <div class="tradeMesg-box">
 
-    <div class="click" v-if="!tab_seen">
+        <div class="tradeMesg-title">区块信息</div>
+
+        <div class="infobox" v-html="click_numberinfo.result">
+        </div>
+      </div>
+    </div>
+
+    <div class="click" v-if="click_save">
       <div class="tradeHash">
         <span>&gt;</span>
         <span>存证哈希：</span>
-        <span class="targetParam"></span>
+        <span class="targetParam">{{click_msg}}</span>
       </div>
       <div class="tradeMesg-box">
 
@@ -334,8 +157,32 @@
         <div class="pictureLayer">
           <div class="tradeMesg-row clear-fix">
             <div class="certified-row">
-              <span class="tradeMesg-name">交易发起方：</span>
-              <span class="tradeMesg-content source_address"></span>
+              <span class="tradeMesg-name">存证发起方：</span>
+              <span class="tradeMesg-content source_address">{{click_saveinfo[0]}}</span>
+            </div>
+          </div>
+          <div class="tradeMesg-row clear-fix">
+            <div class="certified-row">
+              <span class="tradeMesg-name">存证类型：</span>
+              <span class="tradeMesg-content source_address">{{click_saveinfo[1]}}</span>
+            </div>
+          </div>
+          <div class="tradeMesg-row clear-fix">
+            <div class="certified-row">
+              <span class="tradeMesg-name">存证内容：</span>
+              <span class="tradeMesg-content source_address">{{click_saveinfo[2]}}</span>
+            </div>
+          </div>
+          <div class="tradeMesg-row clear-fix">
+            <div class="certified-row">
+              <span class="tradeMesg-name">存证哈希：</span>
+              <span class="tradeMesg-content source_address">{{click_saveinfo[3]}}</span>
+            </div>
+          </div>
+          <div class="tradeMesg-row clear-fix">
+            <div class="certified-row">
+              <span class="tradeMesg-name">存证时间：</span>
+              <span class="tradeMesg-content source_address">{{click_saveinfo[4]}}</span>
             </div>
           </div>
         </div>
@@ -367,137 +214,8 @@ web3.setProvider(new web3.providers.HttpProvider(reqURL));
 var abi = [
   {
     constant: false,
-    inputs: [{ name: "newOwner", type: "address" }],
-    name: "setOwner",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "partnerAttests",
-    outputs: [{ name: "", type: "uint256", value: "" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [{ name: "addr", type: "address" }],
-    name: "userInfo",
-    outputs: [
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" }
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [{ name: "typ", type: "string" }],
-    name: "attestNunberByID",
-    outputs: [{ name: "", type: "uint256", value: "" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "userNumber",
-    outputs: [{ name: "", type: "uint256", value: "" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: false,
-    inputs: [
-      { name: "recipient", type: "address" },
-      { name: "value", type: "uint256" }
-    ],
-    name: "sendToAddr",
-    outputs: [],
-    payable: true,
-    stateMutability: "payable",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [{ name: "addr", type: "address" }],
-    name: "balanceAt",
-    outputs: [{ name: "", type: "uint256", value: "" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: false,
-    inputs: [{ name: "newAccount", type: "address" }],
-    name: "setFeeAccount",
-    outputs: [],
-    payable: false,
-    stateMutability: "nonpayable",
-    type: "function"
-  },
-  {
-    constant: false,
-    inputs: [
-      { name: "recipients", type: "address[]" },
-      { name: "values", type: "uint256[]" }
-    ],
-    name: "sendToMultiAddr",
-    outputs: [],
-    payable: true,
-    stateMutability: "payable",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [{ name: "addr", type: "address" }],
-    name: "partnerInfo",
-    outputs: [
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" }
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [],
-    name: "attestNunber",
-    outputs: [{ name: "", type: "uint256", value: "" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [{ name: "hash", type: "string" }],
-    name: "acquireVerify",
-    outputs: [
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" }
-    ],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: false,
     inputs: [
       { name: "typ", type: "string" },
-      { name: "desc", type: "string" },
       { name: "cont", type: "string" },
       { name: "hash", type: "string" },
       { name: "dtime", type: "string" }
@@ -509,39 +227,20 @@ var abi = [
     type: "function"
   },
   {
-    constant: true,
-    inputs: [],
-    name: "partnerNumber",
-    outputs: [{ name: "", type: "uint256", value: "" }],
+    constant: false,
+    inputs: [{ name: "newOwner", type: "address" }],
+    name: "setOwner",
+    outputs: [],
     payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [{ name: "addr", type: "address" }],
-    name: "partnerAttestsByAddress",
-    outputs: [{ name: "", type: "uint256", value: "" }],
-    payable: false,
-    stateMutability: "view",
-    type: "function"
-  },
-  {
-    constant: true,
-    inputs: [{ name: "hash", type: "string" }],
-    name: "verify",
-    outputs: [{ name: "", type: "bool", value: false }],
-    payable: false,
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function"
   },
   {
     constant: false,
     inputs: [
       { name: "addr", type: "address" },
-      { name: "id", type: "string" },
-      { name: "desc", type: "string" },
-      { name: "cert", type: "string" }
+      { name: "name", type: "string" },
+      { name: "desc", type: "string" }
     ],
     name: "setPartnerInfo",
     outputs: [],
@@ -551,36 +250,107 @@ var abi = [
   },
   {
     constant: true,
-    inputs: [{ name: "i", type: "uint256" }],
-    name: "attestByIndex",
+    inputs: [{ name: "addr", type: "address" }],
+    name: "balanceAt",
+    outputs: [{ name: "", type: "uint256" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "attestsNunber",
+    outputs: [{ name: "", type: "uint256" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "addr", type: "address" }],
+    name: "partnerInfo",
+    outputs: [{ name: "", type: "string" }, { name: "", type: "string" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "hash", type: "string" }],
+    name: "acquireVerify",
     outputs: [
-      {
-        name: "",
-        type: "address",
-        value: "0x698d090ee51828e42d823a40232dcb1f435e1879"
-      },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" },
-      { name: "", type: "string", value: "" }
+      { name: "", type: "address" },
+      { name: "", type: "string" },
+      { name: "", type: "string" },
+      { name: "", type: "string" },
+      { name: "", type: "string" }
     ],
     payable: false,
     stateMutability: "view",
     type: "function"
   },
   {
-    constant: false,
+    constant: true,
+    inputs: [],
+    name: "partnerNumber",
+    outputs: [{ name: "", type: "uint256" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "addr", type: "address" }],
+    name: "partnerAttestsNunber",
+    outputs: [{ name: "", type: "uint256" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "hash", type: "string" }],
+    name: "verify",
+    outputs: [{ name: "", type: "bool" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [],
+    name: "partnerList",
+    outputs: [{ name: "", type: "address[]" }],
+    payable: false,
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
     inputs: [
       { name: "addr", type: "address" },
-      { name: "id", type: "string" },
-      { name: "desc", type: "string" },
-      { name: "cert", type: "string" }
+      { name: "typ", type: "string" }
     ],
-    name: "setUserInfo",
-    outputs: [],
+    name: "partnerAttestNunberByType",
+    outputs: [{ name: "", type: "uint256" }],
     payable: false,
-    stateMutability: "nonpayable",
+    stateMutability: "view",
+    type: "function"
+  },
+  {
+    constant: true,
+    inputs: [{ name: "i", type: "uint256" }],
+    name: "attestByIndex",
+    outputs: [
+      { name: "", type: "address" },
+      { name: "", type: "string" },
+      { name: "", type: "string" },
+      { name: "", type: "string" },
+      { name: "", type: "string" }
+    ],
+    payable: false,
+    stateMutability: "view",
     type: "function"
   },
   {
@@ -588,11 +358,20 @@ var abi = [
     payable: false,
     stateMutability: "nonpayable",
     type: "constructor"
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: false, name: "PartnerName", type: "string" },
+      { indexed: false, name: "AttestHash", type: "string" }
+    ],
+    name: "Attestation",
+    type: "event"
   }
 ];
 var MyContract = web3.eth.contract(abi);
 var myContractInstance = MyContract.at(
-  "0x4773E6d0fc281049E2fb47F43798D72012F8cD24"
+  "0x5a8AB986b3F1A834063Fa278EcBeEa098FAd03Cb"
 );
 
 const ERR_OK = 0;
@@ -600,9 +379,15 @@ export default {
   name: "app",
   data() {
     return {
-      search_data: "",
+      click_msg: "",
+      search_seen: true,
       home_seen: true,
-      tab_seen: true,
+      search_infoseen: false,
+      click_block: false,
+      click_save: false,
+      click_numberinfo: "",
+      click_saveinfo: "",
+      search_data: "",
       time: "",
       searchType: "block_height",
       search_content: "",
@@ -613,23 +398,25 @@ export default {
         transactions: []
       },
       getTradeHash: {},
+      getSaveHash: {},
       getAccountBalance: {
         miner: "",
         result: ""
       },
-      blockNumbers: "1",
+      blockNumbers: "",
       partners: "",
       difftime: "",
-      transactionCounts: "5",
+      transactionCounts: "",
+      saveCounts: "",
       blocks: [],
-      qblocks: [],
-      transactions: []
+      transactions: [],
+      saves: []
     };
   },
   mounted() {
     var blocks = [];
-    var qblocks = [];
     var transactions = [];
+    var saves = [];
     // 获取区块数量
     axios
       .post(reqURL, {
@@ -664,6 +451,19 @@ export default {
         }
       });
     //获取记帐节点数
+    // axios
+    //   .post(reqURL, {
+    //     jsonrpc: "2.0",
+    //     method: "net_peerCount",
+    //     params: [],
+    //     id: 2
+    //   })
+    //   .then(res => {
+    //     this.peerCount = parseInt(res.data.result, 16) + 1;
+    //   });
+    //获取合作方数量
+    this.partners = myContractInstance.partnerNumber().c.toString();
+    //获取交易数量
     axios
       .post(reqURL, {
         jsonrpc: "2.0",
@@ -675,14 +475,13 @@ export default {
         this.peerCount = parseInt(res.data.result, 16) + 1;
       });
     //获取存证数量
-    this.transactionCounts = myContractInstance.attestNunber().c.toString();
-    this.partners = myContractInstance.partnerNumber().c.toString();
+    this.saveCounts = myContractInstance.attestsNunber().c.toString();
+
     //获取最新10个存证信息
-    console.log(myContractInstance.acquireVerify("1"));
-    var counts = this.transactionCounts - 1;
+    var counts = this.saveCounts - 1;
     for (var i = counts; i > counts - 10; i--) {
-      transactions.push(myContractInstance.attestByIndex(i));
-      this.transactions = transactions.sort(function(a, b) {
+      saves.push(myContractInstance.attestByIndex(i));
+      this.saves = saves.sort(function(a, b) {
         return b[5] - a[5];
       });
     }
@@ -719,47 +518,43 @@ export default {
             });
         });
       //获取最新记帐节点数
-      axios
-        .post(reqURL, {
-          jsonrpc: "2.0",
-          method: "net_peerCount",
-          params: [],
-          id: 2
-        })
-        .then(res => {
-          that.peerCount = parseInt(res.data.result, 16) + 1;
-        });
+      // axios
+      //   .post(reqURL, {
+      //     jsonrpc: "2.0",
+      //     method: "net_peerCount",
+      //     params: [],
+      //     id: 2
+      //   })
+      //   .then(res => {
+      //     that.peerCount = parseInt(res.data.result, 16) + 1;
+      //   });
       //获取最新存证信息
-      var newTransactionCounts = myContractInstance.attestNunber().c.toString();
-      var newCounts = newTransactionCounts - that.transactionCounts;
+      var newSaveCounts = myContractInstance.attestsNunber().c.toString();
+      var newCounts = newSaveCounts - that.saveCounts;
       if (newCounts === 0) {
       } else if (newCounts > 0) {
         if (newCounts < 10) {
           for (var i = 0; i < newCounts; i++) {
-            transactions.unshift(
-              myContractInstance.attestByIndex(
-                parseInt(that.transactionCounts) + i
-              )
+            saves.unshift(
+              myContractInstance.attestByIndex(parseInt(that.saveCounts) + i)
             );
-            transactions.pop();
-            that.transactions = transactions.sort(function(a, b) {
+            saves.pop();
+            that.saves = saves.sort(function(a, b) {
               return b[5] - a[5];
             });
           }
         } else {
           for (var i = 0; i < 10; i++) {
-            transactions.unshift(
-              myContractInstance.attestByIndex(
-                parseInt(that.transactionCounts) + i
-              )
+            saves.unshift(
+              myContractInstance.attestByIndex(parseInt(that.saveCounts) + i)
             );
-            transactions.pop();
-            that.transactions = transactions.sort(function(a, b) {
+            saves.pop();
+            that.saves = saves.sort(function(a, b) {
               return b[5] - a[5];
             });
           }
         }
-        that.transactionCounts = newTransactionCounts;
+        that.saveCounts = newSaveCounts;
       }
     }, 15000);
     //获取某一地址交易数量
@@ -783,11 +578,10 @@ export default {
       var dateNew = new Date(this.blocks[0].result.timestamp);
       var dateOld = new Date(this.blocks[1].result.timestamp);
       this.difftime = (dateNew - dateOld) / 1000 + "s";
-      console.log((dateNew - dateOld) / 1000 + "s");
     },
 
     clearInput() {
-      this.d = "";
+      this.search_data = "";
       this.time = "";
       this.getBlockHeight = {
         transactions: []
@@ -796,6 +590,7 @@ export default {
         transactions: []
       };
       this.getTradeHash = {};
+      this.getSaveHash = {};
       this.getAccountBalance = {
         miner: "",
         result: ""
@@ -808,6 +603,10 @@ export default {
     },
     search() {
       this.home_seen = false;
+      this.click_block = false;
+      this.click_save = false;
+      this.search_seen = true;
+      this.search_infoseen = true;
       this.clearInput();
       this.time = this.$options.methods.getSeachTime();
       if (this.searchType === "block_height") {
@@ -849,25 +648,31 @@ export default {
               this.getBlockHash
             );
           });
-      } else if (this.searchType === "trade_hash") {
-        axios
-          .post(reqURL, {
-            jsonrpc: "2.0",
-            method: "eth_getTransactionByHash",
-            params: [this.search_content],
-            id: 3
-          })
-          .then(res => {
-            res.data.result.blockNumber = parseInt(res.data.result.blockNumber);
-            // res.data.result.timestamp = formatDate(
-            //   new Date(parseInt(res.data.result.timestamp, 16) * 1000),
-            //   "yyyy-MM-dd hh:mm:ss"
-            // );
-            this.getTradeHash = res.data.result;
-            this.search_data = this.$options.methods.syntaxHighlight(
-              this.getTradeHash
-            );
-          });
+      } else if (this.searchType === "save_hash") {
+        this.getSaveHash = myContractInstance.acquireVerify(
+          this.search_content
+        );
+        this.search_data = this.$options.methods.syntaxHighlight(
+          this.getSaveHash
+        );
+        // axios
+        //   .post(reqURL, {
+        //     jsonrpc: "2.0",
+        //     method: "eth_getTransactionByHash",
+        //     params: [this.search_content],
+        //     id: 3
+        //   })
+        //   .then(res => {
+        //     res.data.result.blockNumber = parseInt(res.data.result.blockNumber);
+        //     // res.data.result.timestamp = formatDate(
+        //     //   new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+        //     //   "yyyy-MM-dd hh:mm:ss"
+        //     // );
+        //     this.getTradeHash = res.data.result;
+        //     this.search_data = this.$options.methods.syntaxHighlight(
+        //       this.getTradeHash
+        //     );
+        //   });
       } else if (this.searchType === "account_balance") {
         axios
           .post(reqURL, {
@@ -919,10 +724,37 @@ export default {
       );
     },
     myhome: function() {
-      this.tab_seen = true;
+      this.search_infoseen = false;
+      this.click_block = false;
+      this.click_save = false;
+      this.search_seen = true;
+      this.home_seen = true;
     },
-    myinfo: function() {
-      this.tab_seen = false;
+    clickNumber: function(event) {
+      this.click_msg = event.target.innerText;
+      var that = this;
+      this.search_infoseen = false;
+      this.search_seen = false;
+      this.home_seen = false;
+      this.click_save = false;
+      this.click_block = true;
+      this.click_numberinfo = _.find(that.blocks, function(o) {
+        if (o.result.hash === that.click_msg) {
+          return o;
+        }
+      });
+    },
+    clickSave: function(event) {
+      this.click_msg = event.target.innerText;
+      var that = this;
+      this.search_infoseen = false;
+      this.search_seen = false;
+      this.home_seen = false;
+      this.click_block = false;
+      this.click_save = true;
+      this.click_saveinfo = _.find(that.saves, function(o) {
+        return o[3] === that.click_msg;
+      });
     }
   },
   components: {}
@@ -955,11 +787,8 @@ export default {
     }
 
     .text {
-      background: url('./golo.jpg') no-repeat left top;
-      background-position: 0%;
-      padding-left: 120px;
-      margin-right: 60px;
       font-size: 20px;
+      padding: 0 15px;
     }
 
     .nav {
@@ -1116,20 +945,23 @@ export default {
       }
     }
   }
+}
 
-  .content {
-    width: 100%;
+.content {
+  flex: 1;
+  box-sizing: border-box;
+  margin: 0 auto;
+  width: 1280px;
+  padding: 140px 20px;
+
+  table {
+    table-layout: fixed;
+    width: 70%;
     margin: 0 auto;
+    text-align: center;
 
-    table {
-      table-layout: fixed;
-      width: 70%;
-      margin: 0 auto;
-      text-align: center;
-
-      .col1 {
-        width: 20%;
-      }
+    .col1 {
+      width: 20%;
     }
 
     tr {
@@ -1160,10 +992,6 @@ export default {
     span {
       word-wrap: break-word;
       overflow: hidden;
-
-      .string {
-        color: green;
-      }
     }
 
     .string {
