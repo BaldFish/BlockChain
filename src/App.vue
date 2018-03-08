@@ -8,7 +8,7 @@
         </a>
       </div>
     </div>
-
+    <div style="height:70px"></div>
     <div class="search_box" v-if="search_seen">
       <select name="" class="search_select" v-model="searchType">
         <option value="block_height">区块高度</option>
@@ -116,20 +116,19 @@
     </div>
     <div class="content" v-if="search_infoseen">
       <p>查询时间：{{time}}</p>
-      <div id="pre" ref="result" v-html="search_data">
+      <div class="pre" ref="result" v-html="search_data">
       </div>
     </div>
     <div class="click" v-if="click_block">
       <div class="tradeHash">
         <span>&gt;</span>
         <span>区块哈希：</span>
-        <span class="targetParam">{{click_numberinfo.result.hash}}</span>
+        <span class="targetParam">{{click_numberinfo.hash}}</span>
       </div>
       <div class="tradeMesg-box">
 
         <div class="tradeMesg-title">区块信息</div>
-
-        <div class="infobox" v-html="click_numberinfo.result">
+        <div class="pre" ref="block" v-html="click_numberinfojp">
         </div>
       </div>
     </div>
@@ -386,6 +385,7 @@ export default {
       click_block: false,
       click_save: false,
       click_numberinfo: "",
+      click_numberinfojp:"",
       click_saveinfo: "",
       search_data: "",
       time: "",
@@ -418,6 +418,8 @@ export default {
     var transactions = [];
     var saves = [];
     // 获取区块数量
+    this.blockNumbers=web3.eth.blockNumber
+    //获取最新10个区块
     axios
       .post(reqURL, {
         jsonrpc: "2.0",
@@ -427,7 +429,6 @@ export default {
       })
       .then(res => {
         this.blockNumbers = parseInt(res.data.result, 16);
-
         // 获取最新10个区块
         for (var i = this.blockNumbers; i > this.blockNumbers - 10; i--) {
           axios
@@ -450,6 +451,8 @@ export default {
             });
         }
       });
+    //获取合作方数量
+    this.partners = myContractInstance.partnerNumber().c.toString();
     //获取记帐节点数
     // axios
     //   .post(reqURL, {
@@ -461,19 +464,6 @@ export default {
     //   .then(res => {
     //     this.peerCount = parseInt(res.data.result, 16) + 1;
     //   });
-    //获取合作方数量
-    this.partners = myContractInstance.partnerNumber().c.toString();
-    //获取交易数量
-    axios
-      .post(reqURL, {
-        jsonrpc: "2.0",
-        method: "net_peerCount",
-        params: [],
-        id: 2
-      })
-      .then(res => {
-        this.peerCount = parseInt(res.data.result, 16) + 1;
-      });
     //获取存证数量
     this.saveCounts = myContractInstance.attestsNunber().c.toString();
 
@@ -609,85 +599,78 @@ export default {
       this.search_infoseen = true;
       this.clearInput();
       this.time = this.$options.methods.getSeachTime();
+      
       if (this.searchType === "block_height") {
-        axios
-          .post(reqURL, {
-            jsonrpc: "2.0",
-            method: "eth_getBlockByNumber",
-            params: ["0x" + parseInt(this.search_content).toString(16), true],
-            id: 1
-          })
-          .then(res => {
-            res.data.result.number = parseInt(res.data.result.number);
-            res.data.result.timestamp = formatDate(
-              new Date(parseInt(res.data.result.timestamp, 16) * 1000),
-              "yyyy-MM-dd hh:mm:ss"
-            );
-
-            this.getBlockHeight = res.data.result;
-            this.search_data = this.$options.methods.syntaxHighlight(
+        //按区块高度查询区块信息
+        this.getBlockHeight = web3.eth.getBlock(this.search_content);
+        this.search_data = this.$options.methods.syntaxHighlight(
               this.getBlockHeight
             );
-          });
+        // axios
+        //   .post(reqURL, {
+        //     jsonrpc: "2.0",
+        //     method: "eth_getBlockByNumber",
+        //     params: ["0x" + parseInt(this.search_content).toString(16), true],
+        //     id: 1
+        //   })
+        //   .then(res => {
+        //     console.log(res.data.result)
+        //     res.data.result.number = parseInt(res.data.result.number);
+        //     res.data.result.timestamp = formatDate(
+        //       new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+        //       "yyyy-MM-dd hh:mm:ss"
+        //     );
+        //     this.getBlockHeight = res.data.result;
+        //     this.search_data = this.$options.methods.syntaxHighlight(
+        //       this.getBlockHeight
+        //     );
+        //   });
       } else if (this.searchType === "block_hash") {
-        axios
-          .post(reqURL, {
-            jsonrpc: "2.0",
-            method: "eth_getBlockByHash",
-            params: [this.search_content, true],
-            id: 2
-          })
-          .then(res => {
-            res.data.result.number = parseInt(res.data.result.number);
-            res.data.result.timestamp = formatDate(
-              new Date(parseInt(res.data.result.timestamp, 16) * 1000),
-              "yyyy-MM-dd hh:mm:ss"
-            );
-            this.getBlockHash = res.data.result;
-            this.search_data = this.$options.methods.syntaxHighlight(
-              this.getBlockHash
-            );
-          });
+        //按区块哈希查询区块信息
+        this.getBlockHash = web3.eth.getBlock(this.search_content);
+        this.search_data = this.$options.methods.syntaxHighlight(
+          this.getBlockHash
+        );
+        // axios
+        //   .post(reqURL, {
+        //     jsonrpc: "2.0",
+        //     method: "eth_getBlockByHash",
+        //     params: [this.search_content, true],
+        //     id: 2
+        //   })
+        //   .then(res => {
+        //     res.data.result.number = parseInt(res.data.result.number);
+        //     res.data.result.timestamp = formatDate(
+        //       new Date(parseInt(res.data.result.timestamp, 16) * 1000),
+        //       "yyyy-MM-dd hh:mm:ss"
+        //     );
+        //     this.getBlockHash = res.data.result;
+        //     this.search_data = this.$options.methods.syntaxHighlight(
+        //       this.getBlockHash
+        //     );
+        //   });
+      } else if (this.searchType === "trade_hash") {
+        //按交易哈希查询交易信息
+        this.getTradeHash = web3.eth.getTransaction(this.search_content)
+        this.search_data = this.$options.methods.syntaxHighlight(
+          this.getTradeHash
+        );
+        // this.search_data=this.$compile(this.search_data)
       } else if (this.searchType === "save_hash") {
+        //按存证哈希查询存证信息
         this.getSaveHash = myContractInstance.acquireVerify(
           this.search_content
         );
         this.search_data = this.$options.methods.syntaxHighlight(
           this.getSaveHash
         );
-        // axios
-        //   .post(reqURL, {
-        //     jsonrpc: "2.0",
-        //     method: "eth_getTransactionByHash",
-        //     params: [this.search_content],
-        //     id: 3
-        //   })
-        //   .then(res => {
-        //     res.data.result.blockNumber = parseInt(res.data.result.blockNumber);
-        //     // res.data.result.timestamp = formatDate(
-        //     //   new Date(parseInt(res.data.result.timestamp, 16) * 1000),
-        //     //   "yyyy-MM-dd hh:mm:ss"
-        //     // );
-        //     this.getTradeHash = res.data.result;
-        //     this.search_data = this.$options.methods.syntaxHighlight(
-        //       this.getTradeHash
-        //     );
-        //   });
       } else if (this.searchType === "account_balance") {
-        axios
-          .post(reqURL, {
-            jsonrpc: "2.0",
-            method: "eth_getBalance",
-            params: [this.search_content, "latest"],
-            id: 4
-          })
-          .then(res => {
-            this.getAccountBalance.result = parseInt(res.data.result);
-            this.getAccountBalance.miner = this.search_content;
-            this.search_data = this.$options.methods.syntaxHighlight(
-              this.getAccountBalance
-            );
-          });
+        //按账户地址查询余额
+        this.getAccountBalance=web3.eth.getBalance(this.search_content)
+        this.getAccountBalance=String((this.getAccountBalance))
+        this.search_data = this.$options.methods.syntaxHighlight(
+          this.getAccountBalance
+        );
       }
     },
     syntaxHighlight: function(json) {
@@ -742,7 +725,8 @@ export default {
         if (o.result.hash === that.click_msg) {
           return o;
         }
-      });
+      }).result;
+      this.click_numberinfojp =this.$options.methods.syntaxHighlight(this.click_numberinfo)
     },
     clickSave: function(event) {
       this.click_msg = event.target.innerText;
@@ -761,7 +745,7 @@ export default {
 };
 </script>
 
-<style scoped lang="stylus" rel="stylesheet/stylus">
+<style lang="stylus" rel="stylesheet/stylus">
 @import './common/stylus/mixin.styl';
 
 #app {
@@ -772,6 +756,7 @@ export default {
 
 .head-wrap {
   position: fixed;
+  z-index:999;
   width: 100%;
   background-color: #f7f8f8;
   border-bottom: 1px solid #e5e5e5;
@@ -810,7 +795,7 @@ export default {
 .search_box {
   box-sizing: border-box;
   text-align: center;
-  padding: 120px 20px 140px;
+  padding: 20px 20px 170px;
   min-width: 1280px;
   margin: 0 auto;
   font-size: 0;
@@ -952,9 +937,9 @@ export default {
   box-sizing: border-box;
   margin: 0 auto;
   width: 1280px;
-  padding: 140px 20px;
+  padding: 20px 20px 140px;
 
-  table {
+  /*table {
     table-layout: fixed;
     width: 70%;
     margin: 0 auto;
@@ -982,38 +967,8 @@ export default {
         line-height: 20px;
       }
     }
-  }
+  }*/
 
-  #pre {
-    padding: 5px;
-    margin: 5px;
-    white-space: pre-wrap;
-
-    span {
-      word-wrap: break-word;
-      overflow: hidden;
-    }
-
-    .string {
-      color: green;
-    }
-
-    .number {
-      color: darkorange;
-    }
-
-    .boolean {
-      color: blue;
-    }
-
-    .null {
-      color: magenta;
-    }
-
-    .key {
-      color: red;
-    }
-  }
 }
 
 .click {
@@ -1021,39 +976,38 @@ export default {
   box-sizing: border-box;
   margin: 0 auto;
   width: 1280px;
-  padding: 100px 20px;
+  padding: 20px;
   background: #fff;
 
   .tradeHash {
     color: #22b398;
     font-size: 18px;
     width: 1280px;
-    padding-bottom: 30px;
-
-    span:first-child {
-      font-size: 22px;
-      padding-right: 10px;
-    }
+    height:30px;
+    line-height:30px
+    text-overflow : ellipsis; 
+    white-space : nowrap; 
+    overflow : hidden;
   }
 
   .tradeMesg-box {
     background: #fff;
-    padding: 60px;
+    padding: 20px;
     position: relative;
 
     .tradeMesg-title {
       background: #d1d1d1;
       color: #535353;
-      padding: 12px;
-      margin-bottom: 3px;
+      padding: 10px;
+      margin-bottom: 5px;
       font-size: 16px;
     }
 
     .business-infoboxBg {
       position: absolute;
       background: #fff;
-      right: 60px;
-      top: 60px;
+      right: 20px;
+      top: 20px;
       z-index: 1;
 
       .business-infobox {
@@ -1081,14 +1035,53 @@ export default {
 
     .pictureLayer {
       .tradeMesg-row {
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 2px solid #f0f0f0;
         padding-top: 20px;
         padding-bottom: 24px;
+        white-space: pre-wrap;
+        span {
+          word-wrap: break-word;
+          overflow: hidden;
+        }
+        
       }
     }
   }
 }
+.pre {
+    padding: 10px;
+    margin-top:20px;
+    white-space: pre-wrap;
+    min-height:200px;
+    line-height:1.2;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    span {
+      word-wrap: break-word;
+      overflow: hidden;
+    }
 
+    .string {
+      color: green;
+    }
+
+    .number {
+      color: darkorange;
+    }
+
+    .boolean {
+      color: blue;
+    }
+
+    .null {
+      color: magenta;
+    }
+
+    .key {
+      color: red;
+    }
+  }
 .footer {
   background-color: #3a3a3a;
   color: #fff;
