@@ -4,7 +4,7 @@
     <div class="head-wrap">
       <div class="head">
         <a @click="myhome" href="/">
-          <h1 class="text">元链搜索</h1>
+          <h1 class="text">元链搜索（国外版）</h1>
         </a>
       </div>
     </div>
