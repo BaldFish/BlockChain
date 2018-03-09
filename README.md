@@ -1,4 +1,4 @@
-# ethereum
+# blockchain
 
 > A Vue.js project
 
