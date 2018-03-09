@@ -385,7 +385,7 @@ export default {
       click_block: false,
       click_save: false,
       click_numberinfo: "",
-      click_numberinfojp:"",
+      click_numberinfojp: "",
       click_saveinfo: "",
       search_data: "",
       time: "",
@@ -418,7 +418,7 @@ export default {
     var transactions = [];
     var saves = [];
     // 获取区块数量
-    this.blockNumbers=web3.eth.blockNumber
+    this.blockNumbers = web3.eth.blockNumber;
     //获取最新10个区块
     axios
       .post(reqURL, {
@@ -529,10 +529,6 @@ export default {
   watch: {
     blocks: function() {
       if (this.blocks.length > 1) {
-        //方法2，可以直接在watch下写监听到变量发生变化后要运行的代码
-        // var dateNew=new Date(this.blocks[0].result.timestamp)
-        // var dateOld=new Date(this.blocks[1].result.timestamp)
-        // this.difftime=(dateNew-dateOld)/1000+"s"
         this.getdifftime();
       }
     }
@@ -573,24 +569,22 @@ export default {
       this.search_infoseen = true;
       this.clearInput();
       this.time = this.$options.methods.getSeachTime();
-      
+
       if (this.searchType === "block_height") {
         //按区块高度查询区块信息
         this.getBlockHeight = web3.eth.getBlock(this.search_content);
         this.search_data = this.$options.methods.syntaxHighlight(
-              this.getBlockHeight
-            );
-        
+          this.getBlockHeight
+        );
       } else if (this.searchType === "block_hash") {
         //按区块哈希查询区块信息
         this.getBlockHash = web3.eth.getBlock(this.search_content);
         this.search_data = this.$options.methods.syntaxHighlight(
           this.getBlockHash
         );
-        
       } else if (this.searchType === "trade_hash") {
         //按交易哈希查询交易信息
-        this.getTradeHash = web3.eth.getTransaction(this.search_content)
+        this.getTradeHash = web3.eth.getTransaction(this.search_content);
         this.search_data = this.$options.methods.syntaxHighlight(
           this.getTradeHash
         );
@@ -604,8 +598,8 @@ export default {
         );
       } else if (this.searchType === "account_balance") {
         //按账户地址查询余额
-        this.getAccountBalance=web3.eth.getBalance(this.search_content)
-        this.getAccountBalance=String((this.getAccountBalance))
+        this.getAccountBalance = web3.eth.getBalance(this.search_content);
+        this.getAccountBalance = String(this.getAccountBalance);
         this.search_data = this.$options.methods.syntaxHighlight(
           this.getAccountBalance
         );
@@ -664,7 +658,9 @@ export default {
           return o;
         }
       }).result;
-      this.click_numberinfojp =this.$options.methods.syntaxHighlight(this.click_numberinfo)
+      this.click_numberinfojp = this.$options.methods.syntaxHighlight(
+        this.click_numberinfo
+      );
     },
     clickSave: function(event) {
       this.click_msg = event.target.innerText;
@@ -694,7 +690,7 @@ export default {
 
 .head-wrap {
   position: fixed;
-  z-index:999;
+  z-index: 999;
   width: 100%;
   background-color: #f7f8f8;
   border-bottom: 1px solid #e5e5e5;
@@ -876,7 +872,6 @@ export default {
   margin: 0 auto;
   width: 1280px;
   padding: 20px 20px 140px;
-
 }
 
 .click {
@@ -891,11 +886,11 @@ export default {
     color: #22b398;
     font-size: 18px;
     width: 1280px;
-    height:30px;
-    line-height:30px
-    text-overflow : ellipsis; 
-    white-space : nowrap; 
-    overflow : hidden;
+    height: 30px;
+    line-height: 30px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
   .tradeMesg-box {
@@ -947,49 +942,52 @@ export default {
         padding-top: 20px;
         padding-bottom: 24px;
         white-space: pre-wrap;
+
         span {
           word-wrap: break-word;
           overflow: hidden;
         }
-        
       }
     }
   }
 }
+
 .pre {
-    padding: 10px;
-    margin-top:20px;
-    white-space: pre-wrap;
-    min-height:200px;
-    line-height:1.2;
-    background-color: #f5f5f5;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    span {
-      word-wrap: break-word;
-      overflow: hidden;
-    }
+  padding: 10px;
+  margin-top: 20px;
+  white-space: pre-wrap;
+  min-height: 200px;
+  line-height: 1.2;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 
-    .string {
-      color: green;
-    }
-
-    .number {
-      color: darkorange;
-    }
-
-    .boolean {
-      color: blue;
-    }
-
-    .null {
-      color: magenta;
-    }
-
-    .key {
-      color: red;
-    }
+  span {
+    word-wrap: break-word;
+    overflow: hidden;
   }
+
+  .string {
+    color: green;
+  }
+
+  .number {
+    color: darkorange;
+  }
+
+  .boolean {
+    color: blue;
+  }
+
+  .null {
+    color: magenta;
+  }
+
+  .key {
+    color: red;
+  }
+}
+
 .footer {
   background-color: #3a3a3a;
   color: #fff;
