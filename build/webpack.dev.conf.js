@@ -8,16 +8,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const FriendlyErrorsPlugin = require("friendly-errors-webpack-plugin");
 const portfinder = require("portfinder");
 
-//数据接口
-const express = require("express");
-const app = express();
-const appData = require("../data.json"); //加载本地数据文件
-const getNewBlock = appData.getNewBlock; //获取对应的本地数据
-const cardList = appData.cardList;
-const apiRoutes = express.Router();
-const axios = require("axios");
-app.use("/api", apiRoutes);
-//数据接口
 
 const HOST = process.env.HOST;
 const PORT = process.env.PORT && Number(process.env.PORT);
@@ -53,16 +43,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     watchOptions: {
       poll: config.dev.poll
     },
-    //数据接口
-    before(app) {
-      app.get("/api", (req, res) => {
-        res.json({
-          errno: 0,
-          data: appData
-        });
-      });
-    }
-    //数据接口
+
   },
 
   plugins: [

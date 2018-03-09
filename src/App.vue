@@ -453,17 +453,6 @@ export default {
       });
     //获取合作方数量
     this.partners = myContractInstance.partnerNumber().c.toString();
-    //获取记帐节点数
-    // axios
-    //   .post(reqURL, {
-    //     jsonrpc: "2.0",
-    //     method: "net_peerCount",
-    //     params: [],
-    //     id: 2
-    //   })
-    //   .then(res => {
-    //     this.peerCount = parseInt(res.data.result, 16) + 1;
-    //   });
     //获取存证数量
     this.saveCounts = myContractInstance.attestsNunber().c.toString();
 
@@ -507,17 +496,6 @@ export default {
               that.blocks = blocks;
             });
         });
-      //获取最新记帐节点数
-      // axios
-      //   .post(reqURL, {
-      //     jsonrpc: "2.0",
-      //     method: "net_peerCount",
-      //     params: [],
-      //     id: 2
-      //   })
-      //   .then(res => {
-      //     that.peerCount = parseInt(res.data.result, 16) + 1;
-      //   });
       //获取最新存证信息
       var newSaveCounts = myContractInstance.attestsNunber().c.toString();
       var newCounts = newSaveCounts - that.saveCounts;
@@ -547,10 +525,6 @@ export default {
         that.saveCounts = newSaveCounts;
       }
     }, 15000);
-    //获取某一地址交易数量
-    // web3.eth.getTransactionCount(
-    //       "0x8c6050ca48ed30f3223d450eef3c8e9548ee230c"
-    //     )
   },
   watch: {
     blocks: function() {
@@ -606,56 +580,20 @@ export default {
         this.search_data = this.$options.methods.syntaxHighlight(
               this.getBlockHeight
             );
-        // axios
-        //   .post(reqURL, {
-        //     jsonrpc: "2.0",
-        //     method: "eth_getBlockByNumber",
-        //     params: ["0x" + parseInt(this.search_content).toString(16), true],
-        //     id: 1
-        //   })
-        //   .then(res => {
-        //     console.log(res.data.result)
-        //     res.data.result.number = parseInt(res.data.result.number);
-        //     res.data.result.timestamp = formatDate(
-        //       new Date(parseInt(res.data.result.timestamp, 16) * 1000),
-        //       "yyyy-MM-dd hh:mm:ss"
-        //     );
-        //     this.getBlockHeight = res.data.result;
-        //     this.search_data = this.$options.methods.syntaxHighlight(
-        //       this.getBlockHeight
-        //     );
-        //   });
+        
       } else if (this.searchType === "block_hash") {
         //按区块哈希查询区块信息
         this.getBlockHash = web3.eth.getBlock(this.search_content);
         this.search_data = this.$options.methods.syntaxHighlight(
           this.getBlockHash
         );
-        // axios
-        //   .post(reqURL, {
-        //     jsonrpc: "2.0",
-        //     method: "eth_getBlockByHash",
-        //     params: [this.search_content, true],
-        //     id: 2
-        //   })
-        //   .then(res => {
-        //     res.data.result.number = parseInt(res.data.result.number);
-        //     res.data.result.timestamp = formatDate(
-        //       new Date(parseInt(res.data.result.timestamp, 16) * 1000),
-        //       "yyyy-MM-dd hh:mm:ss"
-        //     );
-        //     this.getBlockHash = res.data.result;
-        //     this.search_data = this.$options.methods.syntaxHighlight(
-        //       this.getBlockHash
-        //     );
-        //   });
+        
       } else if (this.searchType === "trade_hash") {
         //按交易哈希查询交易信息
         this.getTradeHash = web3.eth.getTransaction(this.search_content)
         this.search_data = this.$options.methods.syntaxHighlight(
           this.getTradeHash
         );
-        // this.search_data=this.$compile(this.search_data)
       } else if (this.searchType === "save_hash") {
         //按存证哈希查询存证信息
         this.getSaveHash = myContractInstance.acquireVerify(
@@ -938,36 +876,6 @@ export default {
   margin: 0 auto;
   width: 1280px;
   padding: 20px 20px 140px;
-
-  /*table {
-    table-layout: fixed;
-    width: 70%;
-    margin: 0 auto;
-    text-align: center;
-
-    .col1 {
-      width: 20%;
-    }
-
-    tr {
-      background-color: #eee;
-    }
-
-    th, td {
-      border: 1px solid green;
-      padding: 10px 20px;
-    }
-
-    caption {
-      text-align: left;
-      margin: 20px 0;
-
-      p {
-        height: 20px;
-        line-height: 20px;
-      }
-    }
-  }*/
 
 }
 
