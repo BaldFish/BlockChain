@@ -204,7 +204,8 @@ import "@/common/stylus/index.styl";
 import formatDate from "@/common/js/formatDate.js";
 import axios from "axios";
 import _ from "lodash";
-const reqURL = "http://blockchain.launchain.org:50000";
+const reqURL = "http://wallet-api-test.launchain.org:50000";
+const tradeURL = "http://wallet-api-test.launchain.org:50000/v1/txn";
 //实例化web3对象
 var Web3 = require("web3");
 var web3 = new Web3();
@@ -464,6 +465,15 @@ export default {
     //   .then(res => {
     //     this.peerCount = parseInt(res.data.result, 16) + 1;
     //   });
+    //获取交易数量
+    axios
+      .get(tradeURL)
+      .then(res => {
+        this.transactionCounts=res.data.count
+      })
+      .catch(error=> {
+        this.transactionCounts = ""
+      });
     //获取存证数量
     this.saveCounts = myContractInstance.attestsNunber().c.toString();
 
@@ -518,6 +528,15 @@ export default {
       //   .then(res => {
       //     that.peerCount = parseInt(res.data.result, 16) + 1;
       //   });
+      //获取交易数量
+      axios
+        .get(tradeURL)
+        .then(res => {
+          this.transactionCounts=res.data.count
+        })
+        .catch(error=> {
+          this.transactionCounts = ""
+        });
       //获取最新存证信息
       var newSaveCounts = myContractInstance.attestsNunber().c.toString();
       var newCounts = newSaveCounts - that.saveCounts;
